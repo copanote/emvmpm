@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mpmpackager>
+    <dataobject id="00" name="Payload Format Indicator" type="primitive"/>
+    <dataobject id="01" name="Point of Initiation Method" type="primitive"/>
+    <dataobject id="15" name="Merchant Account Information" type="primitive"/>
+    <dataobject id="26" name="Merchant Account Information" type="template">
+        <dataobject id="00" name="Globally Unique Indentifier"  type="primitive" />
+        <dataobject id="05" name="Payment Network Specific" type="primitive"  />
+    </dataobject>
+    <dataobject id="52" name="Merchant Category Code" type="primitive"/>
+    <dataobject id="53" name="Transaction Currency" type="primitive"/>
+    <dataobject id="54" name="Tip or Convenience Indicator" type="primitive"/>
+    <dataobject id="56" name="Value of Convenience Fee Fixed" type="primitive"/>
+    <dataobject id="57" name="Value of Convenience Fee Percentage" type="primitive"/>
+    <dataobject id="58" name="Country Code" type="primitive"/>
+    <dataobject id="59" name="Merchant Name" type="primitive"/>
+    <dataobject id="60" name="Merchant City" type="primitive"/>
+    <dataobject id="61" name="Postal Code" type="primitive"/>
+    <dataobject id="62" name="Additional Data Field Template" type="template">
+        <dataobject id="01" name="Bill Number"  type="primitive" />
+        <dataobject id="02" name="Mobile Number"  type="primitive" />
+        <dataobject id="03" name="Store ID"  type="primitive" />
+        <dataobject id="04" name="Loyalty Number"  type="primitive" />
+        <dataobject id="05" name="Reference ID"  type="primitive" />
+        <dataobject id="06" name="Customer ID"  type="primitive" />
+        <dataobject id="07" name="Terminal ID"  type="primitive" />
+        <dataobject id="08" name="Purpose of Transaction"  type="primitive" />
+        <dataobject id="09" name="Additional Consumer Data Request"  type="primitive" />
+        <dataobject id="50" name="BC Loacl"  type="template" >
+            <dataobject id="00" name="Globally Unique Indentifier"  type="primitive" />
+            <dataobject id="01" name="Installment Month"  type="primitive" />
+            <dataobject id="02" name="Membership"  type="primitive" />
+        </dataobject>
+    </dataobject>
+    <dataobject id="63" name="CRC" type="primitive"/>
+    <dataobject id="64" name="Merchant Information Language Template"  type="template" >
+        <dataobject id="00" name="Language Preference"  type="primitive" />
+        <dataobject id="01" name="Merchant Name-Alternate Language"  type="primitive" />
+        <dataobject id="02" name="Merchant City-Alternate Language"  type="primitive" />
+    </dataobject>
+</mpmpackager>
