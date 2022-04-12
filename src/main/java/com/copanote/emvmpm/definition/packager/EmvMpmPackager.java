@@ -1,11 +1,10 @@
-package com.copanote.emvmpm.packager;
+package com.copanote.emvmpm.definition.packager;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -26,11 +25,9 @@ public class EmvMpmPackager {
 	private List<DataObjectDef> FIELDS = new ArrayList<DataObjectDef>();
 	
 	
-	public static EmvMpmDefinition create() {
-		return null;
+	public EmvMpmDefinition create() {
+		return EmvMpmDefinition.of(this.FIELDS);
 	}
-
-	
 	
 	public void setEmvMpmPackager(DataObjectDef[] fields) {
 		FIELDS = Arrays.asList(fields);
@@ -84,14 +81,13 @@ public class EmvMpmPackager {
 				continue;
 			}
 
-			NamedNodeMap map = element.getAttributes();
+			NamedNodeMap node = element.getAttributes();
 			
-			String id = map.getNamedItem("id").getNodeValue();
-			String name = map.getNamedItem("name").getNodeValue();
-			String type = map.getNamedItem("type").getNodeValue();
+			String id   = node.getNamedItem("id").getNodeValue();
+			String name = node.getNamedItem("name").getNodeValue();
+			String type = node.getNamedItem("type").getNodeValue();
 
 			if (DataObjectDef.Type.TEMPLATE.toString().equalsIgnoreCase(type)) {
-
 				List<DataObjectDef> children = configure(element);
 				result.add(new DataObjectDef(id, name, DataObjectDef.Type.TEMPLATE, children));
 			} else {
@@ -99,9 +95,16 @@ public class EmvMpmPackager {
 			}
 
 		}
-
 		return result;
-
 	}
+
+
+
+	@Override
+	public String toString() {
+		return "EmvMpmPackager [FIELDS=" + FIELDS + "]";
+	}
+	
+	
 
 }

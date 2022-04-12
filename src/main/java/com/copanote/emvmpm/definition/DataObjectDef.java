@@ -1,6 +1,5 @@
 package com.copanote.emvmpm.definition;
 
-import java.nio.file.Path;
 import java.util.List;
 
 public class DataObjectDef {
@@ -10,6 +9,9 @@ public class DataObjectDef {
 		TEMPLATE
 	}
 	
+	/*
+	 * Fields
+	 */
 	private String id;
 	private String description;
 	private Type   type;
@@ -17,7 +19,11 @@ public class DataObjectDef {
 	private List<DataObjectDef> children;
 	
 	
-	//for template
+	/*
+	 * Constructors 
+	 */
+	
+	//for Template
 	public DataObjectDef(String id, String description, Type type, List<DataObjectDef> children) {
 		this.id = id;
 		this.description = description;
@@ -26,17 +32,21 @@ public class DataObjectDef {
 		
 		//Set Parent
 		for (DataObjectDef dod : children) {
-			dod.parent = this;
+			dod.setParent(this);
 		}
 	}
-	
-	//for primitive
+
+	//for Primitive
 	public DataObjectDef(String id, String description, Type type) {
 		this.id = id;
 		this.description = description;
 		this.type = type;
 	}
 	
+	
+	/*
+	 *  Getters and Setters
+	 */
 	public String getId() {
 		return id;
 	}
@@ -68,20 +78,38 @@ public class DataObjectDef {
 		this.children = children;
 	}
 
+	
+	/*
+	 *  Defined Method
+	 */
 	public String getCanonicalId() {
 		if (isRootDataObject()) {
 			return "/" + getId();
 		}
-		
-		return this.parent.getCanonicalId() + "/" + getId();
+		return getParent().getCanonicalId() + "/" + getId();
 	}
 	
-	private boolean isRootDataObject() {
+	public boolean isRootDataObject() {
 		if (parent == null) {
 			return true;
 		}
 		
 		return false;
 	}
+	
+	public boolean isTemplate() {
+		if (Type.TEMPLATE == getType()) {
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		return "DataObjectDef [id=" + getCanonicalId() + ", description=" + description + ", type=" + type + ", parent="
+				+ ", children=" + children + "]" ;
+	}
+	
+	
 
 }

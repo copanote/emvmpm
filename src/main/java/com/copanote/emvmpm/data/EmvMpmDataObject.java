@@ -1,13 +1,8 @@
 package com.copanote.emvmpm.data;
 
-/**
- * @author dongwookshin
- * 
- * Markable Interface?
- */
-public class EmvMpmDataObject {
+public class EmvMpmDataObject implements Comparable<EmvMpmDataObject> {
 	
-	public static final EmvMpmDataObject ROOT = new EmvMpmDataObject("", "", "");
+	public static final EmvMpmDataObject ROOT = new EmvMpmDataObject("/", "", "");
 	
 	private String id;
 	private String length;
@@ -36,4 +31,19 @@ public class EmvMpmDataObject {
 	public void setValue(String value) {
 		this.value = value;
 	}
+	
+	public int getILVLength() {
+		return id.length() + length.length() + value.length();
+	}
+	
+	@Override
+	public String toString() {
+		return "EmvMpmDataObject [id=" + id + ", length=" + length + ", value=" + value + "]";
+	}
+	
+	@Override
+	public int compareTo(EmvMpmDataObject o) {
+		return this.getId().compareTo(o.getId());
+	}
+	
 }
