@@ -104,13 +104,13 @@ public class EmvMpmDefinitionTest {
 		String expectedPath5FullId = "/26/01";
 		
 		String path6 = "/26/01";
-		String expectedPath6FullId = "";
+		String expectedPath6FullId = "/26/01";
 		
 		String path7 = "/62/50/00";
-		String expectedPath7FullId = "";
+		String expectedPath7FullId = "/62/50/00";
 		
 		String path8 = "/64";
-		String expectedPath8FullId = "";
+		String expectedPath8FullId = "/64";
 		
 		
 		//WHEN

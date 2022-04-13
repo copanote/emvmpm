@@ -89,12 +89,12 @@ public class EmvMpmNode {
 		
 		String first = list.remove(0);
 		if (! this.getData().getId().equals(first)) {
-			return Optional.of(null);
+			return Optional.empty();
 		}
 		
 
 		EmvMpmNode emn = this;
-		Optional<EmvMpmNode> t = Optional.of(null);
+		Optional<EmvMpmNode> t = Optional.empty();
 		
 		for (String id : list) {
 			t = emn.findChild(id);
