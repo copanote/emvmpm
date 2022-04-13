@@ -25,6 +25,9 @@ public class EmvMpmDefinition {
 //	}
 
 	public Optional<DataObjectDef> find(String canonicalId) {
+		
+		//resolve canonicalId
+		
 		return _find(definitionList, canonicalId);
 		
 	}

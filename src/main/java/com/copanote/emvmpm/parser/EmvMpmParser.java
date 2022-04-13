@@ -81,10 +81,8 @@ public class EmvMpmParser {
 		EmvMpmPackager emp = new EmvMpmPackager();
 		emp.setEmvMpmPackager("emvmpm_bc.xml");
 		EmvMpmDefinition emd = emp.create();
-        
 		
         EmvMpmNode node = parse(qrstr, emd);
-        
         System.out.println(node.toString());
 
 		
