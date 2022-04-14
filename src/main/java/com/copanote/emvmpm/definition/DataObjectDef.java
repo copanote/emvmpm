@@ -22,7 +22,6 @@ public class DataObjectDef {
 	/*
 	 * Constructors 
 	 */
-	
 	//for Template
 	public DataObjectDef(String id, String description, Type type, List<DataObjectDef> children) {
 		this.id = id;
@@ -42,7 +41,6 @@ public class DataObjectDef {
 		this.description = description;
 		this.type = type;
 	}
-	
 	
 	/*
 	 *  Getters and Setters
@@ -65,7 +63,7 @@ public class DataObjectDef {
 	public void setType(Type type) {
 		this.type = type;
 	}
-	public DataObjectDef getParent() {
+	public DataObjectDef getParent() {                                                                                                                   
 		return parent;
 	}
 	public void setParent(DataObjectDef parent) {
