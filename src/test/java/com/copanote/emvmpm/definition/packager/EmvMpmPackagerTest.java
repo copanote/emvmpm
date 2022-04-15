@@ -1,4 +1,4 @@
-package com.copanote.emvmpm.packager;
+package com.copanote.emvmpm.definition.packager;
 
 import java.io.IOException;
 import java.util.Arrays;

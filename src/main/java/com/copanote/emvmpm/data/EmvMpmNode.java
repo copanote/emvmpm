@@ -82,7 +82,7 @@ public class EmvMpmNode {
 	
 	public Optional<EmvMpmNode> find(String canonicalId) {
 		
-		List<String> idList = parseId(canonicalId);
+		List<String> idList = EmvMpmPaths.parsePath(canonicalId);
 		List<String> list = new ArrayList<>();
 		list.addAll(idList);
 
@@ -108,43 +108,33 @@ public class EmvMpmNode {
 		return t;
 	}
 	
-	// /ab/cd/ef/gh
-	private List<String> parseId(String canonicalId) {
-		String[] sa = canonicalId.split("/");
-		List<String> sl = Arrays.asList(sa);
-		if (canonicalId.startsWith("/")) {
-			if (sl.size() == 0 ) {
-				return Arrays.asList("/");
-			} else {
-				sl.set(0, "/");
-			}
-		}
-		return sl;
-	}
-	
 	public String getCanonicalId() {
-		EmvMpmNode p = this;
-		String id = p.getData().getId();
+		return __canonicalId(this, EmvMpmPaths.getDelimiter());
+	}
+	
+	private String __canonicalId(EmvMpmNode node, String delimeter) {
 		
-		while(true) {
-			if (p.isRoot()) {
-				return "/" + id;
+		if (node.isRoot()) {
+			if (node.getData().getId().equalsIgnoreCase(delimeter)) {
+				return "";
+			} else {
+				return node.getData().getId();
 			}
-			p = p.getParent();
-			id = p.getData().getId() + "." + id;
+		} else {
+			return __canonicalId(node.getParent(), delimeter) + delimeter + node.getData().getId();
 		}
 	}
 	
-	private EmvMpmNode findRoot() {
-		EmvMpmNode rootCandidate = this;
-		while(true) {
-			if (rootCandidate.isRoot()) {
-				break;
-			} 
-			rootCandidate = rootCandidate.getParent();
-		}
-		return rootCandidate;
-	}
+//	private EmvMpmNode findRoot() {
+//		EmvMpmNode rootCandidate = this;
+//		while(true) {
+//			if (rootCandidate.isRoot()) {
+//				break;
+//			} 
+//			rootCandidate = rootCandidate.getParent();
+//		}
+//		return rootCandidate;
+//	}
 
 	@Override
 	public String toString() {

@@ -24,10 +24,11 @@ public class EmvMpmPackager {
 
 	private List<DataObjectDef> FIELDS = new ArrayList<DataObjectDef>();
 	
-	
 	public EmvMpmDefinition create() {
+		
 		return EmvMpmDefinition.of(this.FIELDS);
 	}
+	
 	
 	public void setEmvMpmPackager(DataObjectDef[] fields) {
 		FIELDS = Arrays.asList(fields);
@@ -66,6 +67,7 @@ public class EmvMpmPackager {
 		if (rootNodeList.getLength() < 1) {
 			throw new IllegalArgumentException("There is no mpmpackager element");
 		}
+		
 		Node mpmpackager = rootNodeList.item(0);
 		FIELDS = configure(mpmpackager);
 

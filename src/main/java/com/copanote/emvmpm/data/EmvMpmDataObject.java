@@ -8,11 +8,17 @@ public class EmvMpmDataObject implements Comparable<EmvMpmDataObject> {
 	private String length;
 	private String value;
 	
+	public static EmvMpmDataObject of(String id, String length, String value) {
+		//specification validation
+		return new EmvMpmDataObject(id, length, value);
+	}
+	
 	public EmvMpmDataObject(String id, String length, String value) {
 		this.id = id;
 		this.length = length;
 		this.value = value;
 	}
+	
 	public String getId() {
 		return id;
 	}

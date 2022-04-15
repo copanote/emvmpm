@@ -10,6 +10,8 @@ import org.junit.Test;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.*;
 
+import java.util.Optional;
+
 import com.copanote.emvmpm.definition.packager.EmvMpmPackager;
 
 public class EmvMpmDefinitionTest {
@@ -54,7 +56,7 @@ public class EmvMpmDefinitionTest {
 		boolean expectedPath5 = false;
 		
 		String path6 = "/26/01";
-		boolean expectedPath6 = true;
+		boolean expectedPath6 = false;
 		
 		String path7 = "/62/50/00";
 		boolean expectedPath7 = false;
@@ -87,9 +89,10 @@ public class EmvMpmDefinitionTest {
 	
 	@Test
 	public void testFind() {
+		
 		//GIVEN
 		String path1 = "/";
-		String expectedPath1FullId = "/";
+		Optional<DataObjectDef> expectedPath1FullId = Optional.empty();
 		
 		String path2 = "/00";
 		String expectedPath2FullId = "/00";
@@ -101,10 +104,11 @@ public class EmvMpmDefinitionTest {
 		String expectedPath4FullId = "/26/00";
 		
 		String path5 = "/26/01/";
-		String expectedPath5FullId = "/26/01";
+		Optional<DataObjectDef> expectedPath5FullId = Optional.empty();
 		
 		String path6 = "/26/01";
-		String expectedPath6FullId = "/26/01";
+		Optional<DataObjectDef> expectedPath6FullId = Optional.empty();
+
 		
 		String path7 = "/62/50/00";
 		String expectedPath7FullId = "/62/50/00";
@@ -112,11 +116,34 @@ public class EmvMpmDefinitionTest {
 		String path8 = "/64";
 		String expectedPath8FullId = "/64";
 		
+		String path9 = "123/111";
+		Optional<DataObjectDef> expectedPath9FullId = Optional.empty();
 		
 		//WHEN
-		
-		
+		Optional<DataObjectDef> actual1 = bcEmvMpmDefinition.find(path1);		
+		Optional<DataObjectDef> actual2 = bcEmvMpmDefinition.find(path2);		
+		Optional<DataObjectDef> actual3 = bcEmvMpmDefinition.find(path3);		
+		Optional<DataObjectDef> actual4 = bcEmvMpmDefinition.find(path4);	
+		Optional<DataObjectDef> actual5 = bcEmvMpmDefinition.find(path5);		
+		Optional<DataObjectDef> actual6 = bcEmvMpmDefinition.find(path6);		
+		Optional<DataObjectDef> actual7 = bcEmvMpmDefinition.find(path7);		
+		Optional<DataObjectDef> actual8 = bcEmvMpmDefinition.find(path8);
+		System.out.println(actual8);
+		Optional<DataObjectDef> actual9 = bcEmvMpmDefinition.find(path9);		
+
 		//THEN
+		assertThat(actual1, is(equalTo(expectedPath1FullId)));
+		assertThat(actual2.get().getCanonicalId(), is(equalTo(expectedPath2FullId)));
+		assertThat(actual3.get().getCanonicalId(), is(equalTo(expectedPath3FullId)));
+		assertThat(actual4.get().getCanonicalId(), is(equalTo(expectedPath4FullId)));
+		assertThat(actual5, is(equalTo(expectedPath5FullId)));
+		assertThat(actual6, is(equalTo(expectedPath6FullId)));
+		assertThat(actual7.get().getCanonicalId(), is(equalTo(expectedPath7FullId)));
+		assertThat(actual8.get().getCanonicalId(), is(equalTo(expectedPath8FullId)));
+		assertThat(actual9, is(equalTo(expectedPath9FullId)));
+
+		
+		
 	}
 	
 	

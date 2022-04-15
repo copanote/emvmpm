@@ -3,11 +3,15 @@ package com.copanote.emvmpm.definition;
 import java.util.List;
 import java.util.Optional;
 
+import com.copanote.emvmpm.data.EmvMpmPaths;
+
 
 public class EmvMpmDefinition {
 	//Data Source
 	private List<DataObjectDef> definitionList;
 	
+	
+	// need Root Node?
 	public EmvMpmDefinition(List<DataObjectDef> definitionList) {
 		this.definitionList = definitionList;
 	}
@@ -20,15 +24,10 @@ public class EmvMpmDefinition {
 		return new EmvMpmDefinition(definitionList);
 	}
 	
-//	public Optional<DataObjectDef> find(String canonicalId) {
-//		return definitionList.stream().filter(dod -> dod.getCanonicalId().equalsIgnoreCase(canonicalId)).findAny();
-//	}
+	
 
 	public Optional<DataObjectDef> find(String canonicalId) {
-		
-		//resolve canonicalId
-		
-		return _find(definitionList, canonicalId);
+		return _find(definitionList, EmvMpmPaths.getEmvMpmPath(canonicalId));
 		
 	}
 	
