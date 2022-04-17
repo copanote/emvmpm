@@ -19,6 +19,14 @@ public class EmvMpmParser {
 		return __parse(EmvMpmNode.root(), data, def);
 	}
 	
+	
+	//Parse EmvMpm without Definition
+	public static EmvMpmNode parse(String data) {
+		return __parseWithoutDef(EmvMpmNode.root(), data);
+	}
+
+	
+	
 	private static EmvMpmNode __parse(EmvMpmNode node, String childData, EmvMpmDefinition def) {
 		
         List<EmvMpmDataObject> children = parseChild(childData);
@@ -29,15 +37,22 @@ public class EmvMpmParser {
         	if (isTemplate(emvMpmNode, def)) {
 				__parse(emvMpmNode, emvMpmNode.getData().getValue(), def);
 			}
-			
 		}
+        
+		return node;
+	}
+	
+	
+	private static EmvMpmNode __parseWithoutDef(EmvMpmNode node, String childData) {
+        List<EmvMpmDataObject> children = parseChild(childData);
+		List<EmvMpmNode> childrenNode = children.stream().map(e -> EmvMpmNode.of(e, node)).collect(Collectors.toList());
+        node.setChildren(childrenNode);
 		return node;
 	}
 	
 	
 	
 	private static boolean isTemplate(EmvMpmNode node, EmvMpmDefinition def) {
-		System.out.println(node.getCanonicalId());
 		Optional<DataObjectDef> d = def.find(node.getCanonicalId());
 		if (d.isPresent()) {
 			DataObjectDef ddef = d.get();

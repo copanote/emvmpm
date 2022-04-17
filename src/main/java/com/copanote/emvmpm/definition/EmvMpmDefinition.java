@@ -63,10 +63,6 @@ public class EmvMpmDefinition {
 		return false;
 	}
 	
-//	public String findDescription(String canonicalId) {
-//		return "";
-//	}
-	
 	public String printDefinition() {
 		return definitionList.toString();
 	}

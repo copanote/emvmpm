@@ -2,10 +2,12 @@ package com.copanote.emvmpm.data;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class EmvMpmNode {
+public class EmvMpmNode implements Comparable<EmvMpmNode> {
 	private EmvMpmDataObject data;
 	private EmvMpmNode parent;      
 	private List<EmvMpmNode> children;
@@ -61,11 +63,11 @@ public class EmvMpmNode {
 		return false;
 	}
 	
-	public boolean hasChild() {
+	private boolean hasChild() {
 		if (children == null || children.isEmpty()) {
-			return true;
+			return false;
 		}
-		return false;
+		return true;
 	}
 	
 	public boolean isTemplate() {
@@ -135,10 +137,39 @@ public class EmvMpmNode {
 //		}
 //		return rootCandidate;
 //	}
+	
+	
+	public String toQrCodeData() {
+		
+		if (isRoot()) {
+//			Collections.sort(getChildren());
+			String r = "";
+			for (EmvMpmNode emvMpmNode : getChildren()) {
+				r += emvMpmNode.toQrCodeData();
+			}
+			return r;
+		} else {
+			
+			if (isPrimitive()) {
+				return getData().toQrCodeData();
+			} else {
+				String rr = getData().getId() + getData().getLength();
+				for (EmvMpmNode emvMpmNode : getChildren()) {
+					rr += emvMpmNode.toQrCodeData();
+				}
+				return rr;
+			}
+		}
+	}
 
 	@Override
 	public String toString() {
 		return "EmvMpmNode [data=" + data +  ", children=" + children + "]";
+	}
+
+	@Override
+	public int compareTo(EmvMpmNode o) {
+		return this.getData().compareTo(o.getData());
 	}
 	
 	
