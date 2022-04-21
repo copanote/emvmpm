@@ -1,9 +1,6 @@
 package com.copanote.emvmpm.data;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +14,10 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 		return ROOT_NODE;
 	}
 	
+	
+	/*
+	 * Constructors and FactoryMethods
+	 */
 	public static EmvMpmNode of(EmvMpmDataObject data) {
 		return new EmvMpmNode(data, null, null);
 	}
@@ -149,7 +150,6 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 			}
 			return r;
 		} else {
-			
 			if (isPrimitive()) {
 				return getData().toQrCodeData();
 			} else {
@@ -161,6 +161,11 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 			}
 		}
 	}
+	
+	public void sortById() {
+		
+	}
+	
 
 	@Override
 	public String toString() {

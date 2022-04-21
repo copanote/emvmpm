@@ -20,12 +20,18 @@ public class EmvMpmParser {
 	}
 	
 	
-	//Parse EmvMpm without Definition
+	//TODO:: implement this method
+	public static EmvMpmNode parseAndDefinitionValidation(String data, EmvMpmDefinition def) {
+		EmvMpmNode parsedNode =  __parse(EmvMpmNode.root(), data, def);
+		return null;
+	}
+	
+	
+	//parse EmvMpm without Definition
 	public static EmvMpmNode parse(String data) {
 		return __parseWithoutDef(EmvMpmNode.root(), data);
 	}
 
-	
 	
 	private static EmvMpmNode __parse(EmvMpmNode node, String childData, EmvMpmDefinition def) {
 		
@@ -56,9 +62,7 @@ public class EmvMpmParser {
 		Optional<DataObjectDef> d = def.find(node.getCanonicalId());
 		if (d.isPresent()) {
 			DataObjectDef ddef = d.get();
-			if (ddef.isTemplate()) {
-				return true;
-			}
+			return ddef.isTemplate();
 		}
 		return false;
 	}

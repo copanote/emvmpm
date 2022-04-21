@@ -1,5 +1,9 @@
 package com.copanote.emvmpm.definition.packager;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -37,11 +41,12 @@ public class EmvMpmPackagerTest {
 	@Test
 	public void testPath() throws ParserConfigurationException, SAXException, IOException {
 
+		//GIVEN
 		EmvMpmPackager emp = new EmvMpmPackager();
 		emp.setEmvMpmPackager("emvmpm_bc.xml");
-//		System.out.println(emp.toString());
+		
+		//WEHN
 		EmvMpmDefinition definition = emp.create();
-//		System.out.println(definition.toString());
 		
 		System.out.println(definition.find("/00"));
 		System.out.println(definition.find("/26/01"));
@@ -49,13 +54,19 @@ public class EmvMpmPackagerTest {
 		System.out.println(definition.find("/62/50/00"));
 		System.out.println(definition.find("/64"));
 		System.out.println(definition.find("/"));
+		
+
+		//THEN
+		assertThat(definition, is(notNullValue()) );
+
 
 		
 	}
 
-//	@Test
+	@Test
 	public void testArray() {
-
+		
+		//GIVEN
 		DataObjectDef[] fields = {
 				new DataObjectDef("00", "Payload Format Indicator", DataObjectDef.Type.PRIMITIVE),
 				new DataObjectDef("01", "Point of Initiation Method", DataObjectDef.Type.PRIMITIVE),
@@ -98,6 +109,21 @@ public class EmvMpmPackagerTest {
 		EmvMpmPackager emp = new EmvMpmPackager();
 		emp.setEmvMpmPackager(fields);
 		System.out.println(emp.toString());
+		
+		//WEHN
+		EmvMpmDefinition definition = emp.create();
+		
+		System.out.println(definition.find("/00"));
+		System.out.println(definition.find("/26/01"));
+		System.out.println(definition.find("/26/00"));
+		System.out.println(definition.find("/62/50/00"));
+		System.out.println(definition.find("/64"));
+		System.out.println(definition.find("/"));
+		
+
+		//THEN
+		assertThat(definition, is(notNullValue()) );
+		
 		
 	}
 

@@ -128,7 +128,6 @@ public class EmvMpmDefinitionTest {
 		Optional<DataObjectDef> actual6 = bcEmvMpmDefinition.find(path6);		
 		Optional<DataObjectDef> actual7 = bcEmvMpmDefinition.find(path7);		
 		Optional<DataObjectDef> actual8 = bcEmvMpmDefinition.find(path8);
-		System.out.println(actual8);
 		Optional<DataObjectDef> actual9 = bcEmvMpmDefinition.find(path9);		
 
 		//THEN
