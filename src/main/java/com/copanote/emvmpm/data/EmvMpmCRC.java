@@ -24,6 +24,7 @@ public class EmvMpmCRC {
 	private static int crc16CCITT(byte[] ba, int polynomial, int crc ) {
 		for (byte b : ba) {
 			for(int i = 0; i < 8; i++ ) {
+				
 				boolean bit = ((b >> ( 7 - i) & 1) == 1);
 				boolean c15 = ((crc >> 15 & 1) ==1 );
 				
