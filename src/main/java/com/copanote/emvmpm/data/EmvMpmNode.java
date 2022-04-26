@@ -1,5 +1,6 @@
 package com.copanote.emvmpm.data;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -9,27 +10,30 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 	private EmvMpmNode parent;      
 	private List<EmvMpmNode> children;
 	
-	private static final EmvMpmNode ROOT_NODE = new EmvMpmNode(EmvMpmDataObject.ROOT, null, null);
-	public static EmvMpmNode root() {
-		return ROOT_NODE;
-	}
-	
 	
 	/*
 	 * Constructors and FactoryMethods
 	 */
-	public static EmvMpmNode of(EmvMpmDataObject data) {
-		return new EmvMpmNode(data, null, null);
-	}
-	
-	public static EmvMpmNode of(EmvMpmDataObject data, EmvMpmNode p) {
-		return new EmvMpmNode(data, p, null);
-	}
 	
 	public EmvMpmNode(EmvMpmDataObject data, EmvMpmNode parent, List<EmvMpmNode> children) {
 		this.data = data;
 		this.parent = parent;
 		this.children = children;
+	}
+	
+	//replace children List
+	public void add(List<EmvMpmNode> items) {
+		items.stream().forEach(n -> n.setParent(this));
+		setChildren(items);
+	}
+	
+	public void add(EmvMpmNode node) {
+		
+		if (children == null) {
+			children = new ArrayList<>();
+		}
+		node.setParent(this);
+		children.add(node);
 	}
 	
 	/*
@@ -54,11 +58,13 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 		this.children = children;
 	}
 	
+	
+	
 	/*
 	 *  Defined Methods
 	 */
 	public boolean isRoot() {
-		if (parent == null) {
+		if (parent == null && data.getId().equals(EmvMpmDataObject.ROOT.getId()) ) {
 			return true;
 		}
 		return false;
@@ -79,6 +85,7 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 		return !hasChild();
 	}
 	
+	
 	public Optional<EmvMpmNode> findChild(String id) {
 		return getChildren().stream().filter(s -> s.getData().getId().equalsIgnoreCase(id)).findAny();
 	}
@@ -88,7 +95,6 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 		List<String> idList = EmvMpmPaths.parsePath(canonicalId);
 		List<String> list = new ArrayList<>();
 		list.addAll(idList);
-
 		
 		String first = list.remove(0);
 		if (! this.getData().getId().equals(first)) {
@@ -107,7 +113,6 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 				emn = t.get();
 			}
 		}
-		
 		return t;
 	}
 	
@@ -128,22 +133,8 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 		}
 	}
 	
-//	private EmvMpmNode findRoot() {
-//		EmvMpmNode rootCandidate = this;
-//		while(true) {
-//			if (rootCandidate.isRoot()) {
-//				break;
-//			} 
-//			rootCandidate = rootCandidate.getParent();
-//		}
-//		return rootCandidate;
-//	}
-	
-	
 	public String toQrCodeData() {
-		
 		if (isRoot()) {
-//			Collections.sort(getChildren());
 			String r = "";
 			for (EmvMpmNode emvMpmNode : getChildren()) {
 				r += emvMpmNode.toQrCodeData();
@@ -151,7 +142,7 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 			return r;
 		} else {
 			if (isPrimitive()) {
-				return getData().toQrCodeData();
+				return getData().toEmvMpmData();
 			} else {
 				String rr = getData().getId() + getData().getLength();
 				for (EmvMpmNode emvMpmNode : getChildren()) {
@@ -162,10 +153,16 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 		}
 	}
 	
+	public void markCrc() {
+		EmvMpmNode emptyCrc = EmvMpmNodeFactory.emptyCrc();
+		String data = this.toQrCodeData() + emptyCrc.toQrCodeData();
+		emptyCrc.getData().setValue(EmvMpmCRC.calculateEmvMpmCrc(data, StandardCharsets.UTF_8));
+		this.add(emptyCrc);
+	}
+	
 	public void sortById() {
 		
 	}
-	
 
 	@Override
 	public String toString() {
@@ -176,8 +173,7 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 	public int compareTo(EmvMpmNode o) {
 		return this.getData().compareTo(o.getData());
 	}
-	
-	
+
 	
 	
 }

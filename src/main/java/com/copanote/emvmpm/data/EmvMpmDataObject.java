@@ -1,21 +1,36 @@
 package com.copanote.emvmpm.data;
 
-public class EmvMpmDataObject implements Comparable<EmvMpmDataObject> {
+public class EmvMpmDataObject implements Comparable<EmvMpmDataObject>, Cloneable {
 	
 	public static final EmvMpmDataObject ROOT = new EmvMpmDataObject("/", "", "");
 	
 	//preDefiend DataObject
 	public static final EmvMpmDataObject PAYLOAD_FORMAT_INDICATOR = new EmvMpmDataObject("00", "02", "01");
-
 	
-	private String id;
+	
+	//An  ID shall be coded as a two-digit numeric value and shall have a value "00" to "99".
+	private String id;  
+	//Length shall be coded as a two-digit numeric value and shall have a value "01" to "99".
 	private String length;
 	private String value;
+	
+	public static EmvMpmDataObject of(String id, int length, String value) {
+		
+		if (length < 0 || length > 100) {
+			throw new IllegalArgumentException("length shall have a vale 0 to 99");
+		}
+		
+		String twoDigitLength =  String.format("%02d", length);
+		
+		return EmvMpmDataObject.of(id, twoDigitLength, value);
+	}
 	
 	public static EmvMpmDataObject of(String id, String length, String value) {
 		//specification validation
 		return new EmvMpmDataObject(id, length, value);
 	}
+	
+	
 	
 	public EmvMpmDataObject(String id, String length, String value) {
 		this.id = id;
@@ -47,7 +62,7 @@ public class EmvMpmDataObject implements Comparable<EmvMpmDataObject> {
 		return id.length() + length.length() + value.length();
 	}
 	
-	public String toQrCodeData() {
+	public String toEmvMpmData() {
 		return getId() + getLength() + getValue();
 	}
 	
@@ -60,5 +75,12 @@ public class EmvMpmDataObject implements Comparable<EmvMpmDataObject> {
 	public int compareTo(EmvMpmDataObject o) {
 		return this.getId().compareTo(o.getId());
 	}
+
+	@Override
+	protected EmvMpmDataObject clone() throws CloneNotSupportedException {
+		return EmvMpmDataObject.of(getId(), getLength(), getValue());
+	}
+	
+	
 	
 }

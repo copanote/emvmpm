@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import com.copanote.emvmpm.data.EmvMpmDataObject;
 import com.copanote.emvmpm.data.EmvMpmNode;
+import com.copanote.emvmpm.data.EmvMpmNodeFactory;
 import com.copanote.emvmpm.definition.DataObjectDef;
 import com.copanote.emvmpm.definition.EmvMpmDefinition;
 
@@ -16,27 +17,27 @@ public class EmvMpmParser {
 	private static final int LEN_LENGTH = 2;
 	
 	public static EmvMpmNode parse(String data, EmvMpmDefinition def) {
-		return __parse(EmvMpmNode.root(), data, def);
+		return __parse(EmvMpmNodeFactory.root(), data, def);
 	}
 	
 	
 	//TODO:: implement this method
 	public static EmvMpmNode parseAndDefinitionValidation(String data, EmvMpmDefinition def) {
-		EmvMpmNode parsedNode =  __parse(EmvMpmNode.root(), data, def);
+		EmvMpmNode parsedNode =  __parse(EmvMpmNodeFactory.root(), data, def);
 		return null;
 	}
 	
 	
 	//parse EmvMpm without Definition
 	public static EmvMpmNode parse(String data) {
-		return __parseWithoutDef(EmvMpmNode.root(), data);
+		return __parseWithoutDef(EmvMpmNodeFactory.root(), data);
 	}
 
 	
 	private static EmvMpmNode __parse(EmvMpmNode node, String childData, EmvMpmDefinition def) {
 		
         List<EmvMpmDataObject> children = parseChild(childData);
-		List<EmvMpmNode> childrenNode = children.stream().map(e -> EmvMpmNode.of(e, node)).collect(Collectors.toList());
+		List<EmvMpmNode> childrenNode = children.stream().map(e -> EmvMpmNodeFactory.of(e, node)).collect(Collectors.toList());
         node.setChildren(childrenNode);
         
         for (EmvMpmNode emvMpmNode : childrenNode) {
@@ -51,7 +52,7 @@ public class EmvMpmParser {
 	
 	private static EmvMpmNode __parseWithoutDef(EmvMpmNode node, String childData) {
         List<EmvMpmDataObject> children = parseChild(childData);
-		List<EmvMpmNode> childrenNode = children.stream().map(e -> EmvMpmNode.of(e, node)).collect(Collectors.toList());
+		List<EmvMpmNode> childrenNode = children.stream().map(e -> EmvMpmNodeFactory.of(e, node)).collect(Collectors.toList());
         node.setChildren(childrenNode);
 		return node;
 	}

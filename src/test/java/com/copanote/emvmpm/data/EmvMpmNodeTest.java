@@ -1,5 +1,8 @@
 package com.copanote.emvmpm.data;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -67,6 +70,66 @@ public class EmvMpmNodeTest {
 	
 	@Test
 	public void testToQrCodeData() {
+		
+	}
+	
+	@Test
+	public void twoDigitTest() {
+		//GIVEN
+		int t1 = 0;
+		String expected1 = "00";
+
+		int t2 = 1;
+		String expected2 = "01";
+
+		int t3 = 3;
+		String expected3 = "03";
+
+		int t4 = 10;
+		String expected4 = "10";
+
+		int t5 = 99;
+		String expected5 = "99";
+
+		int t6 = 100;
+		String expected6 = "100";
+		
+		int t7 = 1001;
+		String expected7 = "1001";
+
+		
+		//WHEN
+		String actual1 =  String.format("%02d", t1);
+		String actual2 =  String.format("%02d", t2);
+		String actual3 =  String.format("%02d", t3);
+		String actual4 =  String.format("%02d", t4);
+		String actual5 =  String.format("%02d", t5);
+		String actual6 =  String.format("%02d", t6);
+		String actual7 =  String.format("%02d", t7);
+		
+		//THEN
+		assertThat(actual1, is(expected1));
+		assertThat(actual2, is(expected2));
+		assertThat(actual3, is(expected3));
+		assertThat(actual4, is(expected4));
+		assertThat(actual5, is(expected5));
+		assertThat(actual6, is(expected6));
+		assertThat(actual7, is(expected7));
+		
+	}
+	
+	
+	@Test
+	public void testConsturctTree() {
+		EmvMpmNode root = EmvMpmNodeFactory.root();
+		
+		EmvMpmNode payloadFormatIndicator = EmvMpmNodeFactory.of(EmvMpmDataObject.PAYLOAD_FORMAT_INDICATOR);
+		
+		EmvMpmNode crc = EmvMpmNodeFactory.emptyCrc();
+//		crc.setParent(root); 
+		
+//		System.out.println(root.toQrCodeData());
+		System.out.println(crc.toQrCodeData());
 		
 	}
 	
