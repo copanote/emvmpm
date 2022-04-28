@@ -13,7 +13,6 @@ public class EmvMpmNodeFactory {
 		return new EmvMpmNode(EmvMpmDataObject.of("63","04", ""), null, null);
 	}
 	
-	
 	public static EmvMpmNode of(EmvMpmDataObject data) {
 		return new EmvMpmNode(data, null, null);
 	}
@@ -44,5 +43,4 @@ public class EmvMpmNodeFactory {
 		node.add(emptyCrc);
 	}
 	
-
 }

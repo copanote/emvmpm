@@ -21,20 +21,6 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 		this.children = children;
 	}
 	
-	//replace children List
-	public void add(List<EmvMpmNode> items) {
-		items.stream().forEach(n -> n.setParent(this));
-		setChildren(items);
-	}
-	
-	public void add(EmvMpmNode node) {
-		
-		if (children == null) {
-			children = new ArrayList<>();
-		}
-		node.setParent(this);
-		children.add(node);
-	}
 	
 	/*
 	 *  Getters and Setters
@@ -70,6 +56,14 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 		return false;
 	}
 	
+	public boolean isTemplate() {
+		return hasChild() && !isRoot() ;
+	}
+	
+	public boolean isPrimitive() {
+		return !hasChild() && !isRoot();
+	}
+	
 	private boolean hasChild() {
 		if (children == null || children.isEmpty()) {
 			return false;
@@ -77,13 +71,30 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 		return true;
 	}
 	
-	public boolean isTemplate() {
-		return hasChild();
+	public void add(EmvMpmNode node) {
+		
+		if (children == null) {
+			children = new ArrayList<>();
+		}
+		node.setParent(this);
+		children.add(node);
+		
+		if (isTemplate()) {
+			//recalculate EmvMpmDataObject data object
+			int len = this.children.stream().map(i -> i.getData().getILVLength()).reduce(0, Integer::sum);
+			String twoDigitLength =  String.format("%02d", len);
+			String value = this.children.stream().map(i -> i.getData().toEmvMpmData()).reduce("", String::concat);
+			getData().setLength(twoDigitLength);
+			getData().setValue(value);
+		}
+		
 	}
 	
-	public boolean isPrimitive() {
-		return !hasChild();
+	//Need ?
+	public void delete(String id) {
+		
 	}
+	
 	
 	
 	public Optional<EmvMpmNode> findChild(String id) {
@@ -134,24 +145,24 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 	}
 	
 	public String toQrCodeData() {
-		if (isRoot()) {
-			String r = "";
-			for (EmvMpmNode emvMpmNode : getChildren()) {
-				r += emvMpmNode.toQrCodeData();
-			}
-			return r;
+		if( isPrimitive() ) {
+			return getData().toEmvMpmData();
 		} else {
-			if (isPrimitive()) {
-				return getData().toEmvMpmData();
-			} else {
-				String rr = getData().getId() + getData().getLength();
-				for (EmvMpmNode emvMpmNode : getChildren()) {
-					rr += emvMpmNode.toQrCodeData();
-				}
-				return rr;
+			String result = "";
+			
+			if (isTemplate()) {
+				result = getData().getId() + getData().getLength();
+			} else if(isRoot()) {
+				result  = "";
 			}
+			
+			for (EmvMpmNode emvMpmNode : getChildren()) {
+				result += emvMpmNode.toQrCodeData();
+			}
+			return result;
 		}
 	}
+	
 	
 	public void markCrc() {
 		EmvMpmNode emptyCrc = EmvMpmNodeFactory.emptyCrc();

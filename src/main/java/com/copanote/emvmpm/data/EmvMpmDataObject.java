@@ -14,6 +14,11 @@ public class EmvMpmDataObject implements Comparable<EmvMpmDataObject>, Cloneable
 	private String length;
 	private String value;
 	
+	
+	public static EmvMpmDataObject of(String id, String value) {
+		return EmvMpmDataObject.of(id, value.length(), value);
+	}
+	
 	public static EmvMpmDataObject of(String id, int length, String value) {
 		
 		if (length < 0 || length > 100) {
