@@ -119,20 +119,4 @@ public class EmvMpmNodeTest {
 	}
 	
 	
-	@Test
-	public void testConsturctTree() {
-		EmvMpmNode root = EmvMpmNodeFactory.root();
-		
-		EmvMpmNode payloadFormatIndicator = EmvMpmNodeFactory.of(EmvMpmDataObject.PAYLOAD_FORMAT_INDICATOR);
-		
-		EmvMpmNode crc = EmvMpmNodeFactory.emptyCrc();
-//		crc.setParent(root); 
-		
-//		System.out.println(root.toQrCodeData());
-		System.out.println(crc.toQrCodeData());
-		
-	}
-	
-	
-
 }

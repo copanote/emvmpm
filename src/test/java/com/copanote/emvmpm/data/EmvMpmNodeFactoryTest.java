@@ -1,5 +1,8 @@
 package com.copanote.emvmpm.data;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +29,29 @@ public class EmvMpmNodeFactoryTest {
 	@After
 	public void tearDown() throws Exception {
 	}
+	
+	
+	@Test
+	public void ceateTemplateNodeTest() {
+		
+		//GIVEN
+		String expected = "2631"
+				+ "0014D4100000014010"
+				+ "0509100005832";
+		
+		List<EmvMpmNode> micList = new  ArrayList<>();
+		micList.add(  EmvMpmNodeFactory.of(EmvMpmDataObject.of("00", "D4100000014010"))  );
+		micList.add(  EmvMpmNodeFactory.of(EmvMpmDataObject.of("05", "100005832"))        );
+		
+		//WHEN
+		EmvMpmNode actualTemplateNode = EmvMpmNodeFactory.createTemplateNode("26", micList);
+		String actual = actualTemplateNode.toQrCodeData();
+		
+		
+		//THEN
+		assertThat(actual, is(expected));
+		
+	}
 
 	@Test
 	public void constructTreeTest() {
@@ -41,17 +67,17 @@ public class EmvMpmNodeFactoryTest {
 		EmvMpmNode t7 = EmvMpmNodeFactory.of(EmvMpmDataObject.of("07", "123456789"));
 		EmvMpmNode t8 = EmvMpmNodeFactory.of(EmvMpmDataObject.of("08", "1234567890"));
 		
-		String tem = "2631"
-				+ "0014D4100000014010"
-				+ "0509100005832";
 		List<EmvMpmNode> micList = new  ArrayList<>();
 		micList.add(  EmvMpmNodeFactory.of(EmvMpmDataObject.of("00", "D4100000014010"))  );
 		micList.add(  EmvMpmNodeFactory.of(EmvMpmDataObject.of("05", "100005832"))        );
 		EmvMpmNode mic = EmvMpmNodeFactory.createTemplateNode("26", micList);
 		mic.add(EmvMpmNodeFactory.of(EmvMpmDataObject.of("09", "9999"))   );
 		
-		System.out.println(mic.toString());
-		
+		List<EmvMpmNode> micList2 = new  ArrayList<>();
+		micList.add(  EmvMpmNodeFactory.of(EmvMpmDataObject.of("00", "D4100000014010"))  );
+		micList.add(  EmvMpmNodeFactory.of(EmvMpmDataObject.of("05", "100005832"))        );
+		EmvMpmNode mic2 = EmvMpmNodeFactory.createTemplateNode("55", micList);
+		mic2.add(EmvMpmNodeFactory.of(EmvMpmDataObject.of("09", "9999"))   );
 		
 		root.add(payloadFormatIndicator);
 		root.add(t2);
@@ -62,13 +88,9 @@ public class EmvMpmNodeFactoryTest {
 		root.add(t7);
 		root.add(t8);
 		root.add(mic);
-		
-		EmvMpmNodeFactory.markCrc(root);
-		
+		root.add(mic2);
+		root.markCrc();
 		System.out.println(root.toQrCodeData());
-		
-		
-		
 	}
 
 }
