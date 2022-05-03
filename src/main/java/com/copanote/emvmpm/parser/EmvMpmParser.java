@@ -20,22 +20,18 @@ public class EmvMpmParser {
 		return __parse(EmvMpmNodeFactory.root(), data, def);
 	}
 	
-	
 	//TODO:: implement this method
 	public static EmvMpmNode parseAndDefinitionValidation(String data, EmvMpmDefinition def) {
 		EmvMpmNode parsedNode =  __parse(EmvMpmNodeFactory.root(), data, def);
 		return null;
 	}
 	
-	
 	//parse EmvMpm without Definition
 	public static EmvMpmNode parse(String data) {
 		return __parseWithoutDef(EmvMpmNodeFactory.root(), data);
 	}
-
 	
 	private static EmvMpmNode __parse(EmvMpmNode node, String childData, EmvMpmDefinition def) {
-		
         List<EmvMpmDataObject> children = parseChild(childData);
 		List<EmvMpmNode> childrenNode = children.stream().map(e -> EmvMpmNodeFactory.of(e, node)).collect(Collectors.toList());
         node.setChildren(childrenNode);
@@ -45,10 +41,8 @@ public class EmvMpmParser {
 				__parse(emvMpmNode, emvMpmNode.getData().getValue(), def);
 			}
 		}
-        
 		return node;
 	}
-	
 	
 	private static EmvMpmNode __parseWithoutDef(EmvMpmNode node, String childData) {
         List<EmvMpmDataObject> children = parseChild(childData);
@@ -56,7 +50,6 @@ public class EmvMpmParser {
         node.setChildren(childrenNode);
 		return node;
 	}
-	
 	
 	
 	private static boolean isTemplate(EmvMpmNode node, EmvMpmDefinition def) {

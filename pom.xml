@@ -16,6 +16,7 @@
 	</properties>
 
 	<dependencies>
+	
 		<!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -23,7 +24,6 @@
 			<version>1.18.22</version>
 			<scope>provided</scope>
 		</dependency>
-
 
 		<!-- https://mvnrepository.com/artifact/junit/junit -->
 		<dependency>
@@ -40,6 +40,14 @@
 			<version>2.2</version>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.15</version>
+		</dependency>
+
 	</dependencies>
 
 </project>

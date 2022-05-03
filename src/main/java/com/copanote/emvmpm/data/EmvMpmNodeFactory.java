@@ -1,6 +1,5 @@
 package com.copanote.emvmpm.data;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class EmvMpmNodeFactory {
@@ -11,6 +10,10 @@ public class EmvMpmNodeFactory {
 	
 	public static EmvMpmNode emptyCrc() {
 		return new EmvMpmNode(EmvMpmDataObject.of("63","04", ""), null, null);
+	}
+	
+	public static EmvMpmNode of(String id, String value) {
+		return of(EmvMpmDataObject.of(id, value));
 	}
 	
 	public static EmvMpmNode of(EmvMpmDataObject data) {
@@ -36,11 +39,11 @@ public class EmvMpmNodeFactory {
 		return EmvMpmNodeFactory.of(dataObject, items);
 	}
 
-	public static void markCrc(EmvMpmNode node) {
-		EmvMpmNode emptyCrc = EmvMpmNodeFactory.emptyCrc();
-		String data = node.toQrCodeData() + emptyCrc.toQrCodeData();
-		emptyCrc.getData().setValue(EmvMpmCRC.calculateEmvMpmCrc(data, StandardCharsets.UTF_8));
-		node.add(emptyCrc);
-	}
+//	public static void markCrc(EmvMpmNode node) {
+//		EmvMpmNode emptyCrc = EmvMpmNodeFactory.emptyCrc();
+//		String data = node.toQrCodeData() + emptyCrc.toQrCodeData();
+//		emptyCrc.getData().setValue(EmvMpmCRC.calculateEmvMpmCrc(data, StandardCharsets.UTF_8));
+//		node.add(emptyCrc);
+//	}
 	
 }

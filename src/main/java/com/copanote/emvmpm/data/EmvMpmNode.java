@@ -5,22 +5,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.codec.binary.Hex;
+
 public class EmvMpmNode implements Comparable<EmvMpmNode> {
 	private EmvMpmDataObject data;
 	private EmvMpmNode parent;      
 	private List<EmvMpmNode> children;
 	
-	
 	/*
 	 * Constructors and FactoryMethods
 	 */
-	
 	public EmvMpmNode(EmvMpmDataObject data, EmvMpmNode parent, List<EmvMpmNode> children) {
 		this.data = data;
 		this.parent = parent;
 		this.children = children;
 	}
-	
 	
 	/*
 	 *  Getters and Setters
@@ -43,8 +42,6 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 	public void setChildren(List<EmvMpmNode> children) {
 		this.children = children;
 	}
-	
-	
 	
 	/*
 	 *  Defined Methods
@@ -80,17 +77,16 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 		children.add(node);
 		
 		if (isTemplate()) {
-			//recalculate EmvMpmDataObject data object
+			//recalculate parent's length and value
 			int len = this.children.stream().map(i -> i.getData().getILVLength()).reduce(0, Integer::sum);
 			String twoDigitLength =  String.format("%02d", len);
 			String value = this.children.stream().map(i -> i.getData().toEmvMpmData()).reduce("", String::concat);
 			getData().setLength(twoDigitLength);
 			getData().setValue(value);
 		}
-		
 	}
 	
-	//Need ?
+	//Need it?
 	public void delete(String id) {
 		
 	}
@@ -163,6 +159,9 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 		}
 	}
 	
+	public String toHexQrCodeData() {
+		return Hex.encodeHexString(toQrCodeData().getBytes(StandardCharsets.UTF_8)).toUpperCase();
+	}
 	
 	public void markCrc() {
 		EmvMpmNode emptyCrc = EmvMpmNodeFactory.emptyCrc();
@@ -171,6 +170,7 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 		this.add(emptyCrc);
 	}
 	
+	//TODO
 	public void sortById() {
 		
 	}
@@ -179,7 +179,6 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 	public int compareTo(EmvMpmNode o) {
 		return this.getData().compareTo(o.getData());
 	}
-	
 
 	@Override
 	public String toString() {

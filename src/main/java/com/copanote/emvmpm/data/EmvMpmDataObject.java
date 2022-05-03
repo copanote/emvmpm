@@ -83,7 +83,6 @@ public class EmvMpmDataObject implements Comparable<EmvMpmDataObject>, Cloneable
 	}
 	
 	
-	
 	@Override
 	public int compareTo(EmvMpmDataObject o) {
 		return this.getId().compareTo(o.getId());
