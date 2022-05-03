@@ -68,6 +68,14 @@ public class DataObjectDef {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	
+	public int getMaxlength() {
+		return maxlength;
+	}
+	public void setMaxlength(int maxlength) {
+		this.maxlength = maxlength;
+	}
+
 	public Type getType() {
 		return type;
 	}
