@@ -1,5 +1,7 @@
 package com.copanote.emvmpm.data;
 
+import com.copanote.emvmpm.definition.EmvMpmDefinition;
+
 public class EmvMpmDataObject implements Comparable<EmvMpmDataObject>, Cloneable {
 	
 	public static final EmvMpmDataObject ROOT = new EmvMpmDataObject("/", "", "");
@@ -34,7 +36,6 @@ public class EmvMpmDataObject implements Comparable<EmvMpmDataObject>, Cloneable
 		//specification validation
 		return new EmvMpmDataObject(id, length, value);
 	}
-	
 	
 	
 	public EmvMpmDataObject(String id, String length, String value) {
@@ -75,6 +76,13 @@ public class EmvMpmDataObject implements Comparable<EmvMpmDataObject>, Cloneable
 	public String toString() {
 		return "EmvMpmDataObject [id=" + id + ", length=" + length + ", value=" + value + "]";
 	}
+	
+	public String toDetailedString(EmvMpmDefinition def) {
+		
+		return "";
+	}
+	
+	
 	
 	@Override
 	public int compareTo(EmvMpmDataObject o) {

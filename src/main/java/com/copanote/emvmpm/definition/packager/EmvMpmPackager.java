@@ -87,13 +87,15 @@ public class EmvMpmPackager {
 			
 			String id   = node.getNamedItem("id").getNodeValue();
 			String name = node.getNamedItem("name").getNodeValue();
+			String maxlength = node.getNamedItem("maxlength").getNodeValue();
+			int ml = Integer.parseInt(maxlength);
 			String type = node.getNamedItem("type").getNodeValue();
 
 			if (DataObjectDef.Type.TEMPLATE.toString().equalsIgnoreCase(type)) {
 				List<DataObjectDef> children = configure(element);
-				result.add(new DataObjectDef(id, name, DataObjectDef.Type.TEMPLATE, children));
+				result.add(new DataObjectDef(id, name, ml, DataObjectDef.Type.TEMPLATE, children));
 			} else {
-				result.add(new DataObjectDef(id, name, DataObjectDef.Type.PRIMITIVE));
+				result.add(new DataObjectDef(id, name, ml, DataObjectDef.Type.PRIMITIVE));
 			}
 
 		}

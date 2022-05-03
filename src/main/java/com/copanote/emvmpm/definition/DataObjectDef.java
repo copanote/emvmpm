@@ -14,6 +14,7 @@ public class DataObjectDef {
 	 */
 	private String id;
 	private String description;
+	private int maxlength;
 	private Type   type;
 	private DataObjectDef parent;
 	private List<DataObjectDef> children;
@@ -24,8 +25,13 @@ public class DataObjectDef {
 	 */
 	//for Template
 	public DataObjectDef(String id, String description, Type type, List<DataObjectDef> children) {
+		this(id, description, 99, type, children);
+	}
+	
+	public DataObjectDef(String id, String description, int maxLength, Type type, List<DataObjectDef> children) {
 		this.id = id;
 		this.description = description;
+		this.maxlength = maxLength;
 		this.type = type;
 		this.children = children;
 		
@@ -37,8 +43,13 @@ public class DataObjectDef {
 
 	//for Primitive
 	public DataObjectDef(String id, String description, Type type) {
+		this(id, description, 99, type);
+	}
+	
+	public DataObjectDef(String id, String description, int maxLength ,Type type) {
 		this.id = id;
 		this.description = description;
+		this.maxlength = maxLength;
 		this.type = type;
 	}
 	
@@ -104,7 +115,7 @@ public class DataObjectDef {
 
 	@Override
 	public String toString() {
-		return "DataObjectDef [id=" + getCanonicalId() + ", description=" + description + ", type=" + type + ", parent="
+		return "DataObjectDef [id=" + getCanonicalId() + ", description=" + description +  ", maxlength=" + maxlength + ", type=" + type + ", parent="
 				+ ", children=" + children + "]" ;
 	}
 	

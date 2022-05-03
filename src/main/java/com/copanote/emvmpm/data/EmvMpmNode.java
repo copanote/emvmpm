@@ -176,13 +176,14 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 	}
 
 	@Override
-	public String toString() {
-		return "EmvMpmNode [data=" + data +  ", children=" + children + "]";
-	}
-
-	@Override
 	public int compareTo(EmvMpmNode o) {
 		return this.getData().compareTo(o.getData());
+	}
+	
+
+	@Override
+	public String toString() {
+		return "EmvMpmNode [data=" + data +  ", children=" + children + "]";
 	}
 
 	
