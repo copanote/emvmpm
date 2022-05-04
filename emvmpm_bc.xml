@@ -31,6 +31,7 @@
             <dataobject id="00" name="Globally Unique Indentifier" maxlength="32" type="primitive" />
             <dataobject id="01" name="Installment Month"           maxlength="02" type="primitive" />
             <dataobject id="02" name="Membership Point Type"       maxlength="02" type="primitive" />
+            <dataobject id="03" name="Merchant Type"               maxlength="02" type="primitive" />
         </dataobject>
     </dataobject>
     <dataobject id="63" name="CRC" maxlength="04" type="primitive"/>

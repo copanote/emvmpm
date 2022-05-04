@@ -12,7 +12,16 @@ public class EmvMpmNodeFactory {
 		return new EmvMpmNode(EmvMpmDataObject.of("63","04", ""), null, null);
 	}
 	
-	public static EmvMpmNode of(String id, String value) {
+	public static EmvMpmNode dynamicPointInitMethod() {
+		return EmvMpmNodeFactory.of(EmvMpmDataObject.POINT_INITATION_METHOD_DYNAMIC);
+	}
+	
+	public static EmvMpmNode staticPointInitMethod() {
+		return EmvMpmNodeFactory.of(EmvMpmDataObject.POINT_INITATION_METHOD_STATIC);
+	}
+	
+	
+	public static EmvMpmNode createPrimitive(String id, String value) {
 		return of(EmvMpmDataObject.of(id, value));
 	}
 	

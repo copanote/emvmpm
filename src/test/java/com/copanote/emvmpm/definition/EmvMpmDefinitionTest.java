@@ -130,6 +130,7 @@ public class EmvMpmDefinitionTest {
 		Optional<DataObjectDef> actual8 = bcEmvMpmDefinition.find(path8);
 		Optional<DataObjectDef> actual9 = bcEmvMpmDefinition.find(path9);		
 
+
 		//THEN
 		assertThat(actual1, is(equalTo(expectedPath1FullId)));
 		assertThat(actual2.get().getCanonicalId(), is(equalTo(expectedPath2FullId)));
