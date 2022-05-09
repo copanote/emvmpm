@@ -92,7 +92,6 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 	}
 	
 	
-	
 	public Optional<EmvMpmNode> findChild(String id) {
 		return getChildren().stream().filter(s -> s.getData().getId().equalsIgnoreCase(id)).findAny();
 	}
@@ -172,7 +171,6 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 	
 	//TODO
 	public void sortById() {
-		
 	}
 
 	@Override

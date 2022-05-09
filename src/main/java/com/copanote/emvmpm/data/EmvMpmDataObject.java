@@ -4,12 +4,12 @@ import com.copanote.emvmpm.definition.EmvMpmDefinition;
 
 public class EmvMpmDataObject implements Comparable<EmvMpmDataObject>, Cloneable {
 	
-	public static final EmvMpmDataObject ROOT = new EmvMpmDataObject("/", "", "");
-	
 	//preDefiend DataObject
+	public static final EmvMpmDataObject ROOT = new EmvMpmDataObject("/", "", "");
 	public static final EmvMpmDataObject PAYLOAD_FORMAT_INDICATOR = new EmvMpmDataObject("00", "02", "01");
 	public static final EmvMpmDataObject POINT_INITATION_METHOD_STATIC  = new EmvMpmDataObject("01", "02", "11");
 	public static final EmvMpmDataObject POINT_INITATION_METHOD_DYNAMIC = new EmvMpmDataObject("01", "02", "12");
+	
 	
 	//An  ID shall be coded as a two-digit numeric value and shall have a value "00" to "99".
 	private String id;

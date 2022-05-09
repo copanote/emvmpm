@@ -44,7 +44,7 @@ public class EmvMpmNodeFactoryTest {
 		micList.add(  EmvMpmNodeFactory.of(EmvMpmDataObject.of("05", "100005832"))        );
 		
 		//WHEN
-		EmvMpmNode actualTemplateNode = EmvMpmNodeFactory.createTemplateNode("26", micList);
+		EmvMpmNode actualTemplateNode = EmvMpmNodeFactory.createTemplate("26", micList);
 		String actual = actualTemplateNode.toQrCodeData();
 		
 		
@@ -70,13 +70,13 @@ public class EmvMpmNodeFactoryTest {
 		List<EmvMpmNode> micList = new  ArrayList<>();
 		micList.add(  EmvMpmNodeFactory.of(EmvMpmDataObject.of("00", "D4100000014010"))  );
 		micList.add(  EmvMpmNodeFactory.of(EmvMpmDataObject.of("05", "100005832"))        );
-		EmvMpmNode mic = EmvMpmNodeFactory.createTemplateNode("26", micList);
+		EmvMpmNode mic = EmvMpmNodeFactory.createTemplate("26", micList);
 		mic.add(EmvMpmNodeFactory.of(EmvMpmDataObject.of("09", "9999"))   );
 		
 		List<EmvMpmNode> micList2 = new  ArrayList<>();
 		micList.add(  EmvMpmNodeFactory.of(EmvMpmDataObject.of("00", "D4100000014010"))  );
 		micList.add(  EmvMpmNodeFactory.of(EmvMpmDataObject.of("05", "100005832"))        );
-		EmvMpmNode mic2 = EmvMpmNodeFactory.createTemplateNode("55", micList);
+		EmvMpmNode mic2 = EmvMpmNodeFactory.createTemplate("55", micList);
 		mic2.add(EmvMpmNodeFactory.of(EmvMpmDataObject.of("09", "9999"))   );
 		
 		root.add(payloadFormatIndicator);
