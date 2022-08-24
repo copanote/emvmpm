@@ -5,7 +5,7 @@
 	<groupId>com.copanote.emvmpm</groupId>
 	<artifactId>emvmpm</artifactId>
 	<packaging>jar</packaging>
-	<version>0.9-beta</version>
+	<version>0.0.9</version>
 	<name>Emvmpm</name>
 	<url>http://maven.apache.org</url>
 
