@@ -2,6 +2,7 @@ package com.copanote.emvmpm.definition.packager;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,33 +46,45 @@ public class EmvMpmPackager {
 	 * @throws IOException
 	 */
 	public void setEmvMpmPackager(String path) throws ParserConfigurationException, SAXException, IOException {
-		parseAndConfigure(path);
+		configure(parse(path));
 	}
 	
-	//TODO
-	public void setEmvMpmPackager(File file) {
+	public void setEmvMpmPackager(File file) throws IOException, SAXException, ParserConfigurationException {
+        configure(parse(file));
+
 	}
 
-	//TODO
-	public void setEmvMpmPackager(Reader reader) {
+	public void setEmvMpmPackager(InputStream inputStream) throws ParserConfigurationException, IOException, SAXException {
+        configure(parse(inputStream));
 	}
 
-	
-	private void parseAndConfigure(String path) throws ParserConfigurationException, SAXException, IOException {
+    private Document parse(String path) throws ParserConfigurationException, IOException, SAXException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        return builder.parse(path);
+    }
+    private Document parse(File file) throws ParserConfigurationException, IOException, SAXException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        return builder.parse(file);
+    }
+    private Document parse(InputStream inputStream) throws ParserConfigurationException, IOException, SAXException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        return builder.parse(inputStream);
+    }
 
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory.newDocumentBuilder();
-		Document doc = builder.parse(path);
+	private void configure(Document doc) {
 		NodeList rootNodeList = doc.getElementsByTagName("mpmpackager");
-
 		if (rootNodeList.getLength() < 1) {
 			throw new IllegalArgumentException("There is no mpmpackager element");
 		}
 		
 		Node mpmpackager = rootNodeList.item(0);
 		FIELDS = configure(mpmpackager);
-
 	}
+
+
 
 	private List<DataObjectDef> configure(Node mpmpackager) {
 		List<DataObjectDef> result = new ArrayList<DataObjectDef>();
@@ -101,8 +114,6 @@ public class EmvMpmPackager {
 		}
 		return result;
 	}
-
-
 
 	@Override
 	public String toString() {

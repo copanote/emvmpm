@@ -4,7 +4,10 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -37,6 +40,49 @@ public class EmvMpmPackagerTest {
 	@After
 	public void tearDown() throws Exception {
 	}
+
+
+    @Test
+    public void testFile() throws IOException, ParserConfigurationException, SAXException {
+        //Given
+        EmvMpmPackager emp = new EmvMpmPackager();
+        File file = new File("emvmpm_bc.xml");
+        emp.setEmvMpmPackager(file);
+
+        //WEHN
+        EmvMpmDefinition definition = emp.create();
+
+        System.out.println(definition.find("/00"));
+        System.out.println(definition.find("/26/01"));
+        System.out.println(definition.find("/26/00"));
+        System.out.println(definition.find("/62/50/00"));
+        System.out.println(definition.find("/64"));
+        System.out.println(definition.find("/"));
+
+        //THEN
+        assertThat(definition, is(notNullValue()) );
+    }
+
+    @Test
+    public void testInputStream() throws IOException, ParserConfigurationException, SAXException {
+        //Given
+        EmvMpmPackager emp = new EmvMpmPackager();
+        File file = new File("emvmpm_bc.xml");
+        emp.setEmvMpmPackager(Files.newInputStream(file.toPath()));
+
+        //WEHN
+        EmvMpmDefinition definition = emp.create();
+
+        System.out.println(definition.find("/00"));
+        System.out.println(definition.find("/26/01"));
+        System.out.println(definition.find("/26/00"));
+        System.out.println(definition.find("/62/50/00"));
+        System.out.println(definition.find("/64"));
+        System.out.println(definition.find("/"));
+
+        //THEN
+        assertThat(definition, is(notNullValue()) );
+    }
 
 	@Test
 	public void testPath() throws ParserConfigurationException, SAXException, IOException {
