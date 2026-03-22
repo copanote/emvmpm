@@ -21,8 +21,8 @@ public class EmvMpmPaths {
 		
 		List<String> sl = Arrays.asList(sa);
 		if (mpmNodePath.startsWith(ROOT_ID)) {
-			if (sl.size() == 0 ) {
-				return Arrays.asList(ROOT_ID);
+			if (sl.isEmpty()) {
+				return List.of(ROOT_ID);
 			} else {
 				sl.set(0, ROOT_ID);
 			}

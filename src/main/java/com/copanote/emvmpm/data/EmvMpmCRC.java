@@ -9,19 +9,19 @@ public class EmvMpmCRC {
      *      4.7.3.1 The checksum shall be calculated according to [ISO/IEC 13239] 
      *      using the polynomial '1021' (hex) and initial value 'FFFF' (hex). 
 	 */
-	private static int HEX_POLYNOMIAL = 0x1021;
-	private static int HEX_INITIAL_VALUE = 0xFFFF;
+	private static final int HEX_POLYNOMIAL = 0x1021;
+	private static final int HEX_INITIAL_VALUE = 0xFFFF;
 	
 	public static String calculateEmvMpmCrc(String data, Charset charset) {
 		
 		byte[] ba = data.getBytes(charset);
 		
-		int crc16CCITT = crc16CCITT(ba, HEX_POLYNOMIAL, HEX_INITIAL_VALUE);
+		int crc16CCITT = crc16CCITT(ba, HEX_INITIAL_VALUE);
 		
 		return String.format("%04X", crc16CCITT);
 	}
 	
-	private static int crc16CCITT(byte[] ba, int polynomial, int crc ) {
+	private static int crc16CCITT(byte[] ba, int crc ) {
 		for (byte b : ba) {
 			for(int i = 0; i < 8; i++ ) {
 				
@@ -31,7 +31,7 @@ public class EmvMpmCRC {
 				crc <<= 1;
 				
 				if (c15 ^ bit) {
-					crc ^= polynomial;
+					crc ^= EmvMpmCRC.HEX_POLYNOMIAL;
 				}
 			}
 		}
