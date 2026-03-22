@@ -60,7 +60,4 @@ EmvMpmParser.parse(qrString, definition) → EmvMpmNode (tree)
 
 ## Test structure
 
-Both JUnit 4 (legacy) and JUnit 5 (Jupiter) tests coexist. JUnit Vintage Engine runs the JUnit 4 tests under the JUnit 5 launcher.
-
-- JUnit 4 tests: original files without suffix (e.g. `EmvMpmCRCTest`)
-- JUnit 5 tests: newer files with `JUnit5` suffix or standalone (e.g. `EmvMpmCRCJUnit5Test`, `EmvMpmDataObjectTest`)
+All tests use JUnit 5 (Jupiter). Test class naming: `JUnit5` suffix for classes that mirror a specific component (e.g. `EmvMpmCRCJUnit5Test`), no suffix for classes that are the sole test for a component (e.g. `EmvMpmDataObjectTest`).
