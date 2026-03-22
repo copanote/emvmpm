@@ -1,7 +1,3 @@
-.classpath
-.project
-.settings
-
 # Build output
 target/
 
