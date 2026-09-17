@@ -1,13 +1,6 @@
+/target/
 .classpath
 .project
 .settings
-
-# Build output
-target/
-
-# IDE files
-.idea/
-*.iml
-
-# OS files
-.DS_Store
+.idea
+.mcp.json
