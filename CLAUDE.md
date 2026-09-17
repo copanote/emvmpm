@@ -2,62 +2,49 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Commands
+## Overview
+
+`emvmpm` is a Java library implementing the EMV QR Code Specification for Payment Systems — Merchant Presented Mode (MPM). It parses and builds the TLV (tag-length-value, here called ID-Length-Value / "ILV") data structures used in EMV MPM QR codes, using a pluggable XML-based field definition ("packager") to know which tags are templates (nested TLV) vs primitives.
+
+## Build & Test Commands
+
+Maven, Java 8 target.
 
 ```bash
-# Build
-mvn compile
-
-# Run all tests
-mvn test
-
-# Run a single test class
-mvn test -Dtest=EmvMpmCRCJUnit5Test
-
-# Run a single test method
-mvn test -Dtest=EmvMpmCRCJUnit5Test#calculateCrc_data1
-
-# Package JAR
-mvn package
+mvn compile              # compile
+mvn test                 # run all tests
+mvn test -Dtest=EmvMpmParserTest             # run a single test class
+mvn test -Dtest=EmvMpmParserTest#testParse   # run a single test method
+mvn package              # build target/emvmpm-0.1.0.jar
 ```
 
-Tests are run from the project root directory (`emvmpm/`). Tests that load XML packager definitions (e.g. `emvmpm_bc.xml`) use a relative path — Maven's working directory is the project root, so those paths resolve correctly during `mvn test`.
+Some packager tests (`EmvMpmPackagerTest`) load `emvmpm_bc.xml` via a relative path (`new File("emvmpm_bc.xml")`), so tests must be run with the repo root as the working directory (Maven's default `mvn test` does this correctly).
 
 ## Architecture
 
-This library parses and builds EMV MPM (Merchant Presented Mode) QR code payloads following the EMVCo specification. The payload is a flat string of TLV (Tag-Length-Value) data objects, where some tags are "templates" that nest further TLV data in their value field.
+The code is organized into three packages under `com.copanote.emvmpm`, forming a pipeline: **definition → parse → data tree**.
 
-### Core data model
+### `data` — the runtime TLV tree
+- `EmvMpmDataObject`: a single ID/Length/Value triple (the raw ILV unit). Ids and lengths are two-digit numeric strings per spec. Has well-known static constants (`ROOT`, `PAYLOAD_FORMAT_INDICATOR`, etc).
+- `EmvMpmNode`: wraps a `EmvMpmDataObject` in a tree (parent/children). A node is a **template** if it has children, a **primitive** if it doesn't, and the **root** if it's the special `EmvMpmDataObject.ROOT` sentinel with no parent. Templates are recursively responsible for keeping their own length/value in sync with their children whenever `add()` is called. Key operations: `find`/`findChild` (traverse by canonical path), `getCanonicalId()` (path from root, e.g. `/26/00`), `toQrCodeData()`/`toHexQrCodeData()` (serialize the tree back to the EMV MPM string/hex format), `markCrc()` (computes and appends the trailing CRC ("63") field per spec §4.7.3).
+- `EmvMpmNodeFactory`: preferred way to construct nodes/trees (`root()`, `createPrimitive()`, `createTemplate()`, well-known nodes like `dynamicPim()`/`staticPim()`/`emptyCrc()`).
+- `EmvMpmPaths`: canonical path parsing/formatting utility (`/`-delimited, e.g. `/62/50/00`) shared by both the data tree and the definition tree.
+- `EmvMpmCRC`: standalone CRC-16/CCITT (polynomial `0x1021`, init `0xFFFF`) implementation used by `EmvMpmNode.markCrc()`.
 
-- **`EmvMpmDataObject`** — a single TLV element with `id` (2-digit), `length` (2-digit, zero-padded), and `value`. `toEmvMpmData()` concatenates them. Factory method `of(id, value)` auto-computes length.
-- **`EmvMpmNode`** — wraps an `EmvMpmDataObject` in a tree (parent + children list). A node is either ROOT (no parent, id="/"), TEMPLATE (has children, non-root), or PRIMITIVE (leaf). `toQrCodeData()` serializes the subtree back to the QR string. `markCrc()` appends and calculates the CRC-16/CCITT field (tag "63").
-- **`EmvMpmNodeFactory`** — static factory for common nodes (root, crc, pim, primitive, template). `createTemplate()` auto-calculates the template's length and value from its children.
+### `definition` — the schema describing what tags mean
+- `DataObjectDef`: one field's schema entry — id, description, maxlength, `Type` (`PRIMITIVE`/`TEMPLATE`), and (for templates) child `DataObjectDef`s. Mirrors the shape of `EmvMpmNode`/`EmvMpmDataObject` but for schema instead of data.
+- `EmvMpmDefinition`: an immutable, searchable collection of `DataObjectDef`s (built via `EmvMpmDefinition.of(...)`), looked up by canonical path (`find("/26/00")`).
+- `definition.packager.EmvMpmPackager`: builds an `EmvMpmDefinition` from XML (`<mpmpackager>` root, nested `<dataobject id maxlength type>` elements — see `emvmpm_bc.xml` at repo root for an example schema for a specific card scheme). Accepts a `String` path, `File`, or `InputStream`, or a programmatic `DataObjectDef[]`/`List<DataObjectDef>`.
 
-### Schema / definition layer
+### `parser`
+- `EmvMpmParser.parse(data, definition)`: parses a raw EMV MPM data string into an `EmvMpmNode` tree, consulting the `EmvMpmDefinition` at each level to decide whether a given tag's value should be recursively parsed as a template or kept as a primitive's raw value.
+- `EmvMpmParser.parse(data)`: parses without a definition (everything is treated as flat/primitive — no recursion into templates).
 
-Before parsing, a schema is loaded to distinguish which tags are templates (requiring recursive parsing of their value).
+### Data flow
 
-- **`DataObjectDef`** — schema entry: id, description, maxlength, type (PRIMITIVE/TEMPLATE), children. `getCanonicalId()` returns a slash-delimited path like `/26/00`.
-- **`EmvMpmDefinition`** — holds the flat list of root-level `DataObjectDef`s and searches them recursively by canonical path. `find("/26/00")` and `isTemplate("/26")` are the primary query methods.
-- **`EmvMpmPackager`** — builds an `EmvMpmDefinition` from one of: XML file path (String), `File`, `InputStream`, `DataObjectDef[]`, or `List<DataObjectDef>`. The XML schema format is `<mpmpackager><dataobject id="..." name="..." maxlength="..." type="primitive|template">...</dataobject></mpmpackager>`. See `emvmpm_bc.xml` for a complete example (BC card network definition).
+1. Load a schema: `new EmvMpmPackager().setEmvMpmPackager(xmlFileOrStream)` → `.create()` → `EmvMpmDefinition`.
+2. Parse a QR payload string against that definition: `EmvMpmParser.parse(rawData, definition)` → `EmvMpmNode` tree.
+3. Traverse/query the tree with `EmvMpmNode.find("/canonical/path")`, or serialize it back out with `toQrCodeData()`/`toHexQrCodeData()`.
+4. To build a tree programmatically instead of parsing, use `EmvMpmNodeFactory` (`createPrimitive`/`createTemplate`/`root`), attach children with `node.add(child)` (which recalculates the parent template's length/value), and finish with `node.markCrc()`.
 
-### Parsing flow
-
-```
-EmvMpmPackager → EmvMpmDefinition
-EmvMpmParser.parse(qrString, definition) → EmvMpmNode (tree)
-```
-
-`EmvMpmParser` walks the flat QR string, splitting on 2-byte id + 2-byte length + N-byte value boundaries. For each node, it checks `EmvMpmDefinition.isTemplate()` via canonical path; if true, it recurses into the value string. `parse(qrString)` (no definition) parses only the top level (no template recursion).
-
-### Path conventions
-
-`EmvMpmPaths` normalizes canonical paths: always starts with `/`, no trailing slash, collapses duplicate separators. Paths uniquely identify nodes in the tree (e.g. `/62/50/00`).
-
-### CRC
-
-`EmvMpmCRC.calculateEmvMpmCrc(data, charset)` — CRC-16/CCITT (polynomial 0x1021, initial value 0xFFFF) over the UTF-8 bytes of the QR string up to and including the empty `6304` placeholder. Returns a 4-char uppercase hex string.
-
-## Test structure
-
-All tests use JUnit 5 (Jupiter). Test class naming: `JUnit5` suffix for classes that mirror a specific component (e.g. `EmvMpmCRCJUnit5Test`), no suffix for classes that are the sole test for a component (e.g. `EmvMpmDataObjectTest`).
+Note the parallel structure: `EmvMpmDataObject`/`EmvMpmNode` (runtime data) vs `DataObjectDef` (schema) — both use the same canonical-path addressing (`EmvMpmPaths`) but are otherwise independent object graphs.
