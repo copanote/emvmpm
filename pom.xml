@@ -69,6 +69,26 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>3.4.2</version>
 			</plugin>
+			<plugin>
+				<groupId>com.diffplug.spotless</groupId>
+				<artifactId>spotless-maven-plugin</artifactId>
+				<version>3.10.2</version>
+				<configuration>
+					<java>
+						<palantirJavaFormat>
+							<version>2.98.0</version>
+						</palantirJavaFormat>
+					</java>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
