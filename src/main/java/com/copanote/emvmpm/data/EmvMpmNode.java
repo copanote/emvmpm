@@ -2,12 +2,12 @@ package com.copanote.emvmpm.data;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
 
-
 public class EmvMpmNode implements Comparable<EmvMpmNode> {
+	private static final char[] HEX_CHARS = "0123456789ABCDEF".toCharArray();
+
 	private EmvMpmDataObject data;
 	private EmvMpmNode parent;      
 	private List<EmvMpmNode> children;
@@ -159,7 +159,17 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 	}
 	
 	public String toHexQrCodeData() {
-		return HexFormat.of().formatHex(toQrCodeData().getBytes(StandardCharsets.UTF_8)).toUpperCase();
+		return toHex(toQrCodeData().getBytes(StandardCharsets.UTF_8));
+	}
+
+	private static String toHex(byte[] bytes) {
+		char[] hexChars = new char[bytes.length * 2];
+		for (int i = 0; i < bytes.length; i++) {
+			int v = bytes[i] & 0xFF;
+			hexChars[i * 2] = HEX_CHARS[v >>> 4];
+			hexChars[i * 2 + 1] = HEX_CHARS[v & 0x0F];
+		}
+		return new String(hexChars);
 	}
 	
 	public void markCrc() {
