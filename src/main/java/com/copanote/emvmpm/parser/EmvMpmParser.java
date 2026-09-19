@@ -10,22 +10,65 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * 원시 EMV MPM 데이터 문자열을 {@link EmvMpmNode} 트리로 파싱한다.
+ *
+ * <p>{@link EmvMpmDefinition}이 주어지면 각 레벨에서 definition을 참조해서 해당 태그의 값을 template으로
+ * 재귀 파싱할지 primitive의 원시 값으로 유지할지 판단한다. definition이 없으면 모든 것을 flat/primitive로
+ * 취급한다(template으로의 재귀 없음).
+ *
+ * <p>사용 예시:
+ *
+ * <pre>{@code
+ * EmvMpmPackager packager = new EmvMpmPackager();
+ * packager.setEmvMpmPackager("emvmpm_bc.xml");
+ * EmvMpmDefinition definition = packager.create();
+ *
+ * EmvMpmNode root = EmvMpmParser.parse(rawQrData, definition);
+ * String merchantName = root.find("/59").map(EmvMpmNode::getData).map(EmvMpmDataObject::getValue).orElse(null);
+ * }</pre>
+ */
 public class EmvMpmParser {
 
     private static final int LEN_ID = 2;
     private static final int LEN_LENGTH = 2;
 
+    /** 인스턴스화를 막는 private 생성자. 이 클래스의 모든 멤버는 static이다. */
+    private EmvMpmParser() {}
+
+    /**
+     * definition을 참조해서 원시 데이터를 파싱한다. template으로 정의된 태그는 재귀적으로 하위 트리를
+     * 구성한다.
+     *
+     * @param data 원시 EMV MPM 데이터 문자열
+     * @param def 태그가 template인지 primitive인지 판단할 definition
+     * @return 파싱된 root 노드
+     */
     public static EmvMpmNode parse(String data, EmvMpmDefinition def) {
         return __parse(EmvMpmNodeFactory.root(), data, def);
     }
 
     // TODO:: implement this method
+    /**
+     * definition으로 파싱한 결과를 definition 자체와 대조 검증한다 (현재 미구현).
+     *
+     * @param data 원시 EMV MPM 데이터 문자열
+     * @param def 검증에 사용할 definition
+     * @return 현재는 항상 null
+     */
     public static EmvMpmNode parseAndDefinitionValidation(String data, EmvMpmDefinition def) {
         EmvMpmNode parsedNode = __parse(EmvMpmNodeFactory.root(), data, def);
         return null;
     }
 
     // parse EmvMpm without Definition
+    /**
+     * definition 없이 원시 데이터를 파싱한다. 모든 태그를 primitive로 취급하며 template으로 재귀
+     * 파싱하지 않는다.
+     *
+     * @param data 원시 EMV MPM 데이터 문자열
+     * @return 파싱된 root 노드 (자식은 모두 primitive)
+     */
     public static EmvMpmNode parse(String data) {
         return __parseWithoutDef(EmvMpmNodeFactory.root(), data);
     }

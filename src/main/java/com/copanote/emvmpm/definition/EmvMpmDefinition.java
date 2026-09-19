@@ -4,15 +4,33 @@ import com.copanote.emvmpm.data.EmvMpmPaths;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * 변경 불가능하고 검색 가능한 {@link DataObjectDef} 컬렉션.
+ *
+ * <p>{@link #of(List)}로 생성하며, canonical path(예: "/26/00")로 {@link DataObjectDef}를
+ * 조회할 수 있다.
+ */
 public class EmvMpmDefinition {
     // Data Source
     private List<DataObjectDef> definitionList;
 
     // need Root Node?
+    /**
+     * 최상위 필드 정의 목록으로 definition을 생성한다.
+     *
+     * @param definitionList 최상위 필드 정의 목록
+     */
     public EmvMpmDefinition(List<DataObjectDef> definitionList) {
         this.definitionList = definitionList;
     }
 
+    /**
+     * 필드 정의 목록을 검증한 뒤 {@link EmvMpmDefinition}을 생성한다.
+     *
+     * @param definitionList 최상위 필드 정의 목록
+     * @return 생성된 definition
+     * @throws IllegalArgumentException definitionList가 null이거나 비어 있는 경우
+     */
     public static EmvMpmDefinition of(List<DataObjectDef> definitionList) {
         if (definitionList == null || definitionList.isEmpty()) {
             throw new IllegalArgumentException("argument must not be null or empty");
@@ -21,6 +39,12 @@ public class EmvMpmDefinition {
         return new EmvMpmDefinition(definitionList);
     }
 
+    /**
+     * canonical path로 필드 정의를 조회한다.
+     *
+     * @param canonicalId "/"로 구분된 canonical path (예: "/62/50/00")
+     * @return 일치하는 필드 정의, 없으면 {@link Optional#empty()}
+     */
     public Optional<DataObjectDef> find(String canonicalId) {
         return _find(definitionList, EmvMpmPaths.getEmvMpmPath(canonicalId));
     }
@@ -44,6 +68,12 @@ public class EmvMpmDefinition {
         return Optional.empty();
     }
 
+    /**
+     * 주어진 canonical path에 해당하는 필드가 template인지 판별한다.
+     *
+     * @param canonicalId "/"로 구분된 canonical path
+     * @return 필드가 존재하고 template 타입이면 true
+     */
     public boolean isTemplate(String canonicalId) {
         Optional<DataObjectDef> dod = find(canonicalId);
         if (dod.isPresent()) {
@@ -55,6 +85,11 @@ public class EmvMpmDefinition {
         return false;
     }
 
+    /**
+     * 이 definition이 보유한 필드 정의 목록을 문자열로 출력한다.
+     *
+     * @return 필드 정의 목록의 문자열 표현
+     */
     public String printDefinition() {
         return definitionList.toString();
     }
