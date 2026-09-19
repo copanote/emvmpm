@@ -11,6 +11,9 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<maven.compiler.release>8</maven.compiler.release>
+		<!-- JUnit 6 class files require Java 17; test code is never shipped in the jar,
+		     so only test compilation/execution needs a Java 17+ JDK. -->
+		<maven.compiler.testRelease>17</maven.compiler.testRelease>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -20,7 +23,7 @@
 			<dependency>
 				<groupId>org.junit</groupId>
 				<artifactId>junit-bom</artifactId>
-				<version>5.14.4</version>
+				<version>6.1.3</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
