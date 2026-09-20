@@ -51,35 +51,48 @@ public class EmvMpmNodeFactory {
     }
 
     /**
-     * 부모/자식이 없는 단독 노드를 생성한다.
+     * 부모/자식이 없는 단독 노드를 생성한다. {@code data}는 노드에 담기 전에 복사되므로, 이후 이 노드의
+     * data를 변경해도 호출자가 들고 있는 원본이나 {@link EmvMpmDataObject}의 공유 static 상수(예:
+     * {@link EmvMpmDataObject#ROOT})에는 영향을 주지 않는다.
      *
-     * @param data 노드가 감쌀 ILV 데이터
+     * @param data 노드가 감쌀 ILV 데이터 (복사되어 사용됨)
      * @return 생성된 노드
      */
     public static EmvMpmNode of(EmvMpmDataObject data) {
-        return new EmvMpmNode(data, null, null);
+        return new EmvMpmNode(copyOf(data), null, null);
     }
 
     /**
-     * 부모가 지정된 노드를 생성한다.
+     * 부모가 지정된 노드를 생성한다. {@code data}는 노드에 담기 전에 복사된다.
      *
-     * @param data 노드가 감쌀 ILV 데이터
+     * @param data 노드가 감쌀 ILV 데이터 (복사되어 사용됨)
      * @param parent 부모 노드
      * @return 생성된 노드
      */
     public static EmvMpmNode of(EmvMpmDataObject data, EmvMpmNode parent) {
-        return new EmvMpmNode(data, parent, null);
+        return new EmvMpmNode(copyOf(data), parent, null);
     }
 
     /**
-     * 자식 목록이 지정된 노드를 생성한다.
+     * 자식 목록이 지정된 노드를 생성한다. {@code data}는 노드에 담기 전에 복사된다.
      *
-     * @param data 노드가 감쌀 ILV 데이터
+     * @param data 노드가 감쌀 ILV 데이터 (복사되어 사용됨)
      * @param children 자식 노드 목록
      * @return 생성된 노드
      */
     public static EmvMpmNode of(EmvMpmDataObject data, List<EmvMpmNode> children) {
-        return new EmvMpmNode(data, null, children);
+        return new EmvMpmNode(copyOf(data), null, children);
+    }
+
+    /**
+     * data를 독립적인 새 인스턴스로 복사한다. {@link EmvMpmDataObject#ROOT}와 같은 공유 static 상수가
+     * 노드에 그대로 들어가서 변경(mutation)에 노출되는 것을 막기 위한 방어적 복사다.
+     *
+     * @param data 복사할 데이터
+     * @return 필드 값이 같은 새 인스턴스
+     */
+    private static EmvMpmDataObject copyOf(EmvMpmDataObject data) {
+        return EmvMpmDataObject.of(data.getId(), data.getLength(), data.getValue());
     }
 
     /**
