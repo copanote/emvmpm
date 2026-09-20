@@ -2,11 +2,38 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.copanote.emvmpm</groupId>
+	<groupId>io.github.copanote</groupId>
 	<artifactId>emvmpm</artifactId>
 	<packaging>jar</packaging>
 	<version>0.1.0</version>
 	<name>Emvmpm</name>
+	<description>EMV QR Code Specification for Payment Systems - Merchant Presented Mode (MPM) implementation in Java</description>
+	<url>https://github.com/copanote/emvmpm</url>
+
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>copanote</id>
+			<name>dongwook.shin</name>
+			<email>copanote@gmail.com</email>
+			<organization>copanote</organization>
+			<url>https://github.com/copanote</url>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:https://github.com/copanote/emvmpm.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/copanote/emvmpm.git</developerConnection>
+		<url>https://github.com/copanote/emvmpm</url>
+		<tag>HEAD</tag>
+	</scm>
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -83,6 +110,19 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.4.0</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>com.diffplug.spotless</groupId>
 				<artifactId>spotless-maven-plugin</artifactId>
 				<version>3.10.2</version>
@@ -104,5 +144,46 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<!--
+		Central Publishing에 필요한 GPG 서명 / 업로드는 일상적인 mvn test/package를 매번 gpg
+		passphrase 입력으로 막지 않도록 release profile로 분리했다.
+		사용법: mvn clean deploy -Prelease
+	-->
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>3.2.8</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.sonatype.central</groupId>
+						<artifactId>central-publishing-maven-plugin</artifactId>
+						<version>0.11.0</version>
+						<extensions>true</extensions>
+						<configuration>
+							<!-- ~/.m2/settings.xml의 <server><id>central</id>...</server>에 Central Portal user token 필요 -->
+							<publishingServerId>central</publishingServerId>
+							<!-- 검토 없이 즉시 공개하지 않고, Central Portal에서 수동으로 Publish하도록 함 -->
+							<autoPublish>false</autoPublish>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
