@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# commit-msg git hook: 커밋 메시지 제목 형식을 로컬에서 미리 검증한다.
+# 활성화: git config core.hooksPath .githooks
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+subject="$(head -n1 "$1")"
+
+"$repo_root/scripts/validate-commit-msg.sh" "$subject"

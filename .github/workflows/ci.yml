@@ -14,6 +14,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  commit-lint:
+    name: Validate commit messages
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate commit message format
+        run: |
+          set -euo pipefail
+          status=0
+          while IFS= read -r subject; do
+            scripts/validate-commit-msg.sh "$subject" || status=1
+          done < <(git log --format=%s "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}")
+          exit $status
+
   build:
     name: Build & Test (JDK ${{ matrix.java }})
     runs-on: ubuntu-latest
