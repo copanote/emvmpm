@@ -169,14 +169,6 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
         }
     }
 
-    // Need it?
-    /**
-     * 자식 노드를 삭제한다.
-     *
-     * @param id 삭제할 자식 노드의 ID (현재 미구현)
-     */
-    public void delete(String id) {}
-
     /**
      * 직계 자식 중 id가 일치하는 노드를 찾는다.
      *
