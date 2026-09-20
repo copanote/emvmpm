@@ -1,53 +1,60 @@
 package com.copanote.emvmpm.data;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.Arrays;
+import java.util.List;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
-public class EmvMpmPathsTest {
-
-    @BeforeAll
-    public static void setUpBeforeClass() throws Exception {}
-
-    @AfterAll
-    public static void tearDownAfterClass() throws Exception {}
-
-    @BeforeEach
-    public void setUp() throws Exception {}
-
-    @AfterEach
-    public void tearDown() throws Exception {}
+@DisplayName("EmvMpmPaths")
+class EmvMpmPathsTest {
 
     @Test
-    public void testGetEmvMpmPath() {
-        // GIVEN
-        String path1 = "/aa/bb/cc";
-        String expectedEmvPath1 = "/aa/bb/cc";
-        String path2 = "/aa/bb/";
-        String expectedEmvPath2 = "/aa/bb";
-        String path3 = "/";
-        String expectedEmvPath3 = "/";
-        String path4 = "abc/ddd/eee/";
-        String expectedEmvPath4 = "abc/ddd/eee";
-        String path5 = "///abc//ee//dd///";
-        String expectedEmvPath5 = "/abc/ee/dd";
+    @DisplayName("getRootId() returns '/'")
+    void getRootId() {
+        assertEquals("/", EmvMpmPaths.getRootId());
+    }
 
-        // WHEN
-        String actualEmvPath1 = EmvMpmPaths.getEmvMpmPath(path1);
-        String actualEmvPath2 = EmvMpmPaths.getEmvMpmPath(path2);
-        String actualEmvPath3 = EmvMpmPaths.getEmvMpmPath(path3);
-        String actualEmvPath4 = EmvMpmPaths.getEmvMpmPath(path4);
-        String actualEmvPath5 = EmvMpmPaths.getEmvMpmPath(path5);
+    @Test
+    @DisplayName("getDelimiter() returns '/'")
+    void getDelimiter() {
+        assertEquals("/", EmvMpmPaths.getDelimiter());
+    }
 
-        // THEN
-        assertEquals(expectedEmvPath1, actualEmvPath1);
-        assertEquals(expectedEmvPath2, actualEmvPath2);
-        assertEquals(expectedEmvPath3, actualEmvPath3);
-        assertEquals(expectedEmvPath4, actualEmvPath4);
-        assertEquals(expectedEmvPath5, actualEmvPath5);
+    @ParameterizedTest(name = "input={0} => normalized={1}")
+    @CsvSource({
+        "/aa/bb/cc,  /aa/bb/cc",
+        "/aa/bb/,    /aa/bb",
+        "/,          /",
+        "abc/ddd/eee/, abc/ddd/eee",
+        "///abc//ee//dd///, /abc/ee/dd"
+    })
+    @DisplayName("getEmvMpmPath() normalizes paths correctly")
+    void getEmvMpmPath(String input, String expected) {
+        assertEquals(expected.trim(), EmvMpmPaths.getEmvMpmPath(input.trim()));
+    }
+
+    @Test
+    @DisplayName("parsePath('/26/00') returns [/, 26, 00]")
+    void parsePath_nested() {
+        List<String> segments = EmvMpmPaths.parsePath("/26/00");
+        assertEquals(Arrays.asList("/", "26", "00"), segments);
+    }
+
+    @Test
+    @DisplayName("parsePath('/') returns [/]")
+    void parsePath_rootOnly() {
+        List<String> segments = EmvMpmPaths.parsePath("/");
+        assertEquals(Arrays.asList("/"), segments);
+    }
+
+    @Test
+    @DisplayName("parsePath('/62/50/00') returns [/, 62, 50, 00]")
+    void parsePath_deeplyNested() {
+        List<String> segments = EmvMpmPaths.parsePath("/62/50/00");
+        assertEquals(Arrays.asList("/", "62", "50", "00"), segments);
     }
 }

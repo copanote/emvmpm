@@ -1,133 +1,113 @@
 package com.copanote.emvmpm.definition;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.copanote.emvmpm.definition.packager.EmvMpmPackager;
 import java.util.Optional;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
-public class EmvMpmDefinitionTest {
-    private static final EmvMpmPackager bcEmvMpm = new EmvMpmPackager();
-    private static EmvMpmDefinition bcEmvMpmDefinition = null;
+@DisplayName("EmvMpmDefinition")
+class EmvMpmDefinitionTest {
+
+    static EmvMpmDefinition definition;
 
     @BeforeAll
-    public static void setUpBeforeClass() throws Exception {
-        bcEmvMpm.setEmvMpmPackager("emvmpm_bc.xml");
-        bcEmvMpmDefinition = bcEmvMpm.create();
+    static void loadDefinition() throws Exception {
+        EmvMpmPackager packager = new EmvMpmPackager();
+        packager.setEmvMpmPackager("emvmpm_bc.xml");
+        definition = packager.create();
     }
 
-    @AfterAll
-    public static void tearDownAfterClass() throws Exception {}
-
-    @BeforeEach
-    public void setUp() throws Exception {}
-
-    @AfterEach
-    public void tearDown() throws Exception {}
+    // ── find() ────────────────────────────────────────────────────────────
 
     @Test
-    public void isTemplate() {
-        // GIVEN
-        String path1 = "/";
-        boolean expectedPath1 = false;
-
-        String path2 = "/00";
-        boolean expectedPath2 = false;
-
-        String path3 = "/26";
-        boolean expectedPath3 = true;
-
-        String path4 = "/26/00/";
-        boolean expectedPath4 = false;
-
-        String path5 = "/26/01/";
-        boolean expectedPath5 = false;
-
-        String path6 = "/26/01";
-        boolean expectedPath6 = false;
-
-        String path7 = "/62/50/00";
-        boolean expectedPath7 = false;
-
-        String path8 = "/64";
-        boolean expectedPath8 = true;
-
-        // WHEN
-        boolean actualPath1 = bcEmvMpmDefinition.isTemplate(path1);
-        boolean actualPath2 = bcEmvMpmDefinition.isTemplate(path2);
-        boolean actualPath3 = bcEmvMpmDefinition.isTemplate(path3);
-        boolean actualPath4 = bcEmvMpmDefinition.isTemplate(path4);
-        boolean actualPath5 = bcEmvMpmDefinition.isTemplate(path5);
-        boolean actualPath6 = bcEmvMpmDefinition.isTemplate(path6);
-        boolean actualPath7 = bcEmvMpmDefinition.isTemplate(path7);
-        boolean actualPath8 = bcEmvMpmDefinition.isTemplate(path8);
-
-        // THEN
-        assertEquals(expectedPath1, actualPath1);
-        assertEquals(expectedPath2, actualPath2);
-        assertEquals(expectedPath3, actualPath3);
-        assertEquals(expectedPath4, actualPath4);
-        assertEquals(expectedPath5, actualPath5);
-        assertEquals(expectedPath6, actualPath6);
-        assertEquals(expectedPath7, actualPath7);
-        assertEquals(expectedPath8, actualPath8);
+    @DisplayName("find('/') returns empty - root has no definition entry")
+    void find_rootPath_isEmpty() {
+        assertTrue(definition.find("/").isEmpty());
     }
 
     @Test
-    public void testFind() {
+    @DisplayName("find('/00') returns definition with canonicalId '/00'")
+    void find_00() {
+        Optional<DataObjectDef> result = definition.find("/00");
+        assertTrue(result.isPresent());
+        assertEquals("/00", result.get().getCanonicalId());
+    }
 
-        // GIVEN
-        String path1 = "/";
-        Optional<DataObjectDef> expectedPath1FullId = Optional.empty();
+    @Test
+    @DisplayName("find('/26') returns template definition")
+    void find_26_isTemplate() {
+        Optional<DataObjectDef> result = definition.find("/26");
+        assertTrue(result.isPresent());
+        assertEquals("/26", result.get().getCanonicalId());
+        assertTrue(result.get().isTemplate());
+    }
 
-        String path2 = "/00";
-        String expectedPath2FullId = "/00";
+    @Test
+    @DisplayName("find('/26/00/') strips trailing slash and returns definition")
+    void find_26_00_withTrailingSlash() {
+        Optional<DataObjectDef> result = definition.find("/26/00/");
+        assertTrue(result.isPresent());
+        assertEquals("/26/00", result.get().getCanonicalId());
+    }
 
-        String path3 = "/26";
-        String expectedPath3FullId = "/26";
+    @Test
+    @DisplayName("find('/26/01') returns empty - non-existent definition")
+    void find_26_01_isEmpty() {
+        assertTrue(definition.find("/26/01").isEmpty());
+    }
 
-        String path4 = "/26/00/";
-        String expectedPath4FullId = "/26/00";
+    @Test
+    @DisplayName("find('/62/50/00') returns deeply nested definition")
+    void find_deeplyNested() {
+        Optional<DataObjectDef> result = definition.find("/62/50/00");
+        assertTrue(result.isPresent());
+        assertEquals("/62/50/00", result.get().getCanonicalId());
+    }
 
-        String path5 = "/26/01/";
-        Optional<DataObjectDef> expectedPath5FullId = Optional.empty();
+    @Test
+    @DisplayName("find('/64') returns template definition")
+    void find_64_isTemplate() {
+        Optional<DataObjectDef> result = definition.find("/64");
+        assertTrue(result.isPresent());
+        assertTrue(result.get().isTemplate());
+    }
 
-        String path6 = "/26/01";
-        Optional<DataObjectDef> expectedPath6FullId = Optional.empty();
+    @Test
+    @DisplayName("find with invalid path prefix returns empty")
+    void find_invalidPath_isEmpty() {
+        assertTrue(definition.find("123/111").isEmpty());
+    }
 
-        String path7 = "/62/50/00";
-        String expectedPath7FullId = "/62/50/00";
+    // ── isTemplate() ──────────────────────────────────────────────────────
 
-        String path8 = "/64";
-        String expectedPath8FullId = "/64";
+    @ParameterizedTest(name = "path={0} => isTemplate={1}")
+    @CsvSource({
+        "/,       false",
+        "/00,     false",
+        "/26,     true",
+        "/26/00/, false",
+        "/26/01/, false",
+        "/26/01,  false",
+        "/62/50/00, false",
+        "/64,     true"
+    })
+    @DisplayName("isTemplate() returns correct value for known paths")
+    void isTemplate_parameterized(String path, boolean expected) {
+        assertEquals(expected, definition.isTemplate(path.trim()));
+    }
 
-        String path9 = "123/111";
-        Optional<DataObjectDef> expectedPath9FullId = Optional.empty();
+    // ── printDefinition() ─────────────────────────────────────────────────
 
-        // WHEN
-        Optional<DataObjectDef> actual1 = bcEmvMpmDefinition.find(path1);
-        Optional<DataObjectDef> actual2 = bcEmvMpmDefinition.find(path2);
-        Optional<DataObjectDef> actual3 = bcEmvMpmDefinition.find(path3);
-        Optional<DataObjectDef> actual4 = bcEmvMpmDefinition.find(path4);
-        Optional<DataObjectDef> actual5 = bcEmvMpmDefinition.find(path5);
-        Optional<DataObjectDef> actual6 = bcEmvMpmDefinition.find(path6);
-        Optional<DataObjectDef> actual7 = bcEmvMpmDefinition.find(path7);
-        Optional<DataObjectDef> actual8 = bcEmvMpmDefinition.find(path8);
-        Optional<DataObjectDef> actual9 = bcEmvMpmDefinition.find(path9);
-
-        // THEN
-        assertEquals(expectedPath1FullId, actual1);
-        assertEquals(expectedPath2FullId, actual2.get().getCanonicalId());
-        assertEquals(expectedPath3FullId, actual3.get().getCanonicalId());
-        assertEquals(expectedPath4FullId, actual4.get().getCanonicalId());
-        assertEquals(expectedPath5FullId, actual5);
-        assertEquals(expectedPath6FullId, actual6);
-        assertEquals(expectedPath7FullId, actual7.get().getCanonicalId());
-        assertEquals(expectedPath8FullId, actual8.get().getCanonicalId());
-        assertEquals(expectedPath9FullId, actual9);
+    @Test
+    @DisplayName("printDefinition() returns non-empty string")
+    void printDefinition_nonEmpty() {
+        String def = definition.printDefinition();
+        assertNotNull(def);
+        assertFalse(def.isEmpty());
     }
 }

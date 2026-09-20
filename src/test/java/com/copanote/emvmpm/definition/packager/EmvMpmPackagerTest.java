@@ -1,171 +1,113 @@
 package com.copanote.emvmpm.definition.packager;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.copanote.emvmpm.definition.DataObjectDef;
 import com.copanote.emvmpm.definition.EmvMpmDefinition;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
-import javax.xml.parsers.ParserConfigurationException;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.xml.sax.SAXException;
 
-public class EmvMpmPackagerTest {
+@DisplayName("EmvMpmPackager")
+class EmvMpmPackagerTest {
 
-    @BeforeAll
-    public static void setUpBeforeClass() throws Exception {}
-
-    @AfterAll
-    public static void tearDownAfterClass() throws Exception {}
-
-    @BeforeEach
-    public void setUp() throws Exception {}
-
-    @AfterEach
-    public void tearDown() throws Exception {}
+    private static final DataObjectDef[] MINIMAL_FIELDS = {
+        new DataObjectDef("00", "Payload Format Indicator", DataObjectDef.Type.PRIMITIVE),
+        new DataObjectDef("01", "Point of Initiation Method", DataObjectDef.Type.PRIMITIVE),
+        new DataObjectDef(
+                "26",
+                "Merchant Account Info",
+                DataObjectDef.Type.TEMPLATE,
+                Arrays.asList(
+                        new DataObjectDef("00", "Globally Unique Identifier", DataObjectDef.Type.PRIMITIVE),
+                        new DataObjectDef("05", "Payment Network Specific", DataObjectDef.Type.PRIMITIVE))),
+        new DataObjectDef("52", "Merchant Category Code", DataObjectDef.Type.PRIMITIVE),
+        new DataObjectDef("63", "CRC", DataObjectDef.Type.PRIMITIVE),
+    };
 
     @Test
-    public void testFile() throws IOException, ParserConfigurationException, SAXException {
-        // Given
-        EmvMpmPackager emp = new EmvMpmPackager();
+    @DisplayName("setEmvMpmPackager(String path) loads definition from file path")
+    void loadFromPath_createsDefinition() throws Exception {
+        EmvMpmPackager packager = new EmvMpmPackager();
+        packager.setEmvMpmPackager("emvmpm_bc.xml");
+        EmvMpmDefinition def = packager.create();
+        assertNotNull(def);
+    }
+
+    @Test
+    @DisplayName("setEmvMpmPackager(File) loads definition from File object")
+    void loadFromFile_createsDefinition() throws Exception {
+        EmvMpmPackager packager = new EmvMpmPackager();
+        packager.setEmvMpmPackager(new File("emvmpm_bc.xml"));
+        EmvMpmDefinition def = packager.create();
+        assertNotNull(def);
+    }
+
+    @Test
+    @DisplayName("setEmvMpmPackager(InputStream) loads definition from InputStream")
+    void loadFromInputStream_createsDefinition() throws Exception {
+        EmvMpmPackager packager = new EmvMpmPackager();
         File file = new File("emvmpm_bc.xml");
-        emp.setEmvMpmPackager(file);
-
-        // WEHN
-        EmvMpmDefinition definition = emp.create();
-
-        System.out.println(definition.find("/00"));
-        System.out.println(definition.find("/26/01"));
-        System.out.println(definition.find("/26/00"));
-        System.out.println(definition.find("/62/50/00"));
-        System.out.println(definition.find("/64"));
-        System.out.println(definition.find("/"));
-
-        // THEN
-        assertNotNull(definition);
+        packager.setEmvMpmPackager(Files.newInputStream(file.toPath()));
+        EmvMpmDefinition def = packager.create();
+        assertNotNull(def);
     }
 
     @Test
-    public void testInputStream() throws IOException, ParserConfigurationException, SAXException {
-        // Given
-        EmvMpmPackager emp = new EmvMpmPackager();
-        File file = new File("emvmpm_bc.xml");
-        emp.setEmvMpmPackager(Files.newInputStream(file.toPath()));
-
-        // WEHN
-        EmvMpmDefinition definition = emp.create();
-
-        System.out.println(definition.find("/00"));
-        System.out.println(definition.find("/26/01"));
-        System.out.println(definition.find("/26/00"));
-        System.out.println(definition.find("/62/50/00"));
-        System.out.println(definition.find("/64"));
-        System.out.println(definition.find("/"));
-
-        // THEN
-        assertNotNull(definition);
+    @DisplayName("setEmvMpmPackager(array) loads definition from DataObjectDef array")
+    void loadFromArray_createsDefinition() {
+        EmvMpmPackager packager = new EmvMpmPackager();
+        packager.setEmvMpmPackager(MINIMAL_FIELDS);
+        EmvMpmDefinition def = packager.create();
+        assertNotNull(def);
     }
 
     @Test
-    public void testPath() throws ParserConfigurationException, SAXException, IOException {
-
-        // GIVEN
-        EmvMpmPackager emp = new EmvMpmPackager();
-        emp.setEmvMpmPackager("emvmpm_bc.xml");
-
-        // WEHN
-        EmvMpmDefinition definition = emp.create();
-
-        System.out.println(definition.find("/00"));
-        System.out.println(definition.find("/26/01"));
-        System.out.println(definition.find("/26/00"));
-        System.out.println(definition.find("/62/50/00"));
-        System.out.println(definition.find("/64"));
-        System.out.println(definition.find("/"));
-
-        // THEN
-        assertNotNull(definition);
+    @DisplayName("setEmvMpmPackager(list) loads definition from DataObjectDef list")
+    void loadFromList_createsDefinition() {
+        EmvMpmPackager packager = new EmvMpmPackager();
+        packager.setEmvMpmPackager(Arrays.asList(MINIMAL_FIELDS));
+        EmvMpmDefinition def = packager.create();
+        assertNotNull(def);
     }
 
     @Test
-    public void testArray() {
+    @DisplayName("path and file sources produce equivalent definitions for '/26'")
+    void pathAndFile_produceEquivalentDefinitions() throws Exception {
+        EmvMpmPackager fromPath = new EmvMpmPackager();
+        fromPath.setEmvMpmPackager("emvmpm_bc.xml");
+        EmvMpmDefinition defPath = fromPath.create();
 
-        // GIVEN
-        DataObjectDef[] fields = {
-            new DataObjectDef("00", "Payload Format Indicator", DataObjectDef.Type.PRIMITIVE),
-            new DataObjectDef("01", "Point of Initiation Method", DataObjectDef.Type.PRIMITIVE),
-            new DataObjectDef("15", "Payload Format Indicator", DataObjectDef.Type.PRIMITIVE),
-            new DataObjectDef(
-                    "26",
-                    "Payload Format Indicator",
-                    DataObjectDef.Type.TEMPLATE,
-                    Arrays.asList(
-                            new DataObjectDef("00", "Globally Unique Indentifier", DataObjectDef.Type.PRIMITIVE),
-                            new DataObjectDef("05", "Payment Network Specific", DataObjectDef.Type.PRIMITIVE))),
-            new DataObjectDef("52", "Merchant Category Code", DataObjectDef.Type.PRIMITIVE),
-            new DataObjectDef("53", "Transaction Currency", DataObjectDef.Type.PRIMITIVE),
-            new DataObjectDef("54", "Tip or Convenience Indicator", DataObjectDef.Type.PRIMITIVE),
-            new DataObjectDef("56", "Value of Convenience Fee Fixed", DataObjectDef.Type.PRIMITIVE),
-            new DataObjectDef("57", "Value of Convenience Fee Percentage", DataObjectDef.Type.PRIMITIVE),
-            new DataObjectDef("58", "Country Code", DataObjectDef.Type.PRIMITIVE),
-            new DataObjectDef("59", "Merchant Name", DataObjectDef.Type.PRIMITIVE),
-            new DataObjectDef("60", "Merchant City", DataObjectDef.Type.PRIMITIVE),
-            new DataObjectDef("61", "Postal Code", DataObjectDef.Type.PRIMITIVE),
-            new DataObjectDef(
-                    "62",
-                    "Payload Format Indicator",
-                    DataObjectDef.Type.TEMPLATE,
-                    Arrays.asList(
-                            new DataObjectDef("01", "Bill Number", DataObjectDef.Type.PRIMITIVE),
-                            new DataObjectDef("02", "Mobile Number", DataObjectDef.Type.PRIMITIVE),
-                            new DataObjectDef("03", "Store ID", DataObjectDef.Type.PRIMITIVE),
-                            new DataObjectDef("04", "Loyalty Number", DataObjectDef.Type.PRIMITIVE),
-                            new DataObjectDef("05", "Reference ID", DataObjectDef.Type.PRIMITIVE),
-                            new DataObjectDef("06", "Customer ID", DataObjectDef.Type.PRIMITIVE),
-                            new DataObjectDef("07", "Terminal ID", DataObjectDef.Type.PRIMITIVE),
-                            new DataObjectDef("08", "Purpose of Transaction", DataObjectDef.Type.PRIMITIVE),
-                            new DataObjectDef("09", "Additional Consumer Data Request", DataObjectDef.Type.PRIMITIVE),
-                            new DataObjectDef(
-                                    "50",
-                                    "BC Loacl",
-                                    DataObjectDef.Type.TEMPLATE,
-                                    Arrays.asList(
-                                            new DataObjectDef(
-                                                    "00", "Globally Unique Indentifier", DataObjectDef.Type.PRIMITIVE),
-                                            new DataObjectDef("01", "Installment Month", DataObjectDef.Type.PRIMITIVE),
-                                            new DataObjectDef("02", "Membership", DataObjectDef.Type.PRIMITIVE))))),
-            new DataObjectDef("63", "CRC", DataObjectDef.Type.PRIMITIVE),
-            new DataObjectDef(
-                    "64",
-                    "Merchant Information Language Template",
-                    DataObjectDef.Type.TEMPLATE,
-                    Arrays.asList(
-                            new DataObjectDef("00", "Language Preference", DataObjectDef.Type.PRIMITIVE),
-                            new DataObjectDef("01", "Merchant Name-Alternate Language", DataObjectDef.Type.PRIMITIVE),
-                            new DataObjectDef("02", "Merchant City-Alternate Language", DataObjectDef.Type.PRIMITIVE))),
-        };
+        EmvMpmPackager fromFile = new EmvMpmPackager();
+        fromFile.setEmvMpmPackager(new File("emvmpm_bc.xml"));
+        EmvMpmDefinition defFile = fromFile.create();
 
-        EmvMpmPackager emp = new EmvMpmPackager();
-        emp.setEmvMpmPackager(fields);
-        System.out.println(emp.toString());
+        assertEquals(defPath.isTemplate("/26"), defFile.isTemplate("/26"));
+        assertEquals(defPath.find("/26/00").isPresent(), defFile.find("/26/00").isPresent());
+    }
 
-        // WEHN
-        EmvMpmDefinition definition = emp.create();
+    @Test
+    @DisplayName("array-based definition finds nested path '/26/00'")
+    void arrayDefinition_findsNestedPath() {
+        EmvMpmPackager packager = new EmvMpmPackager();
+        packager.setEmvMpmPackager(MINIMAL_FIELDS);
+        EmvMpmDefinition def = packager.create();
 
-        System.out.println(definition.find("/00"));
-        System.out.println(definition.find("/26/01"));
-        System.out.println(definition.find("/26/00"));
-        System.out.println(definition.find("/62/50/00"));
-        System.out.println(definition.find("/64"));
-        System.out.println(definition.find("/"));
+        assertTrue(def.find("/26/00").isPresent());
+        assertEquals("/26/00", def.find("/26/00").get().getCanonicalId());
+    }
 
-        // THEN
-        assertNotNull(definition);
+    @Test
+    @DisplayName("array-based definition: '/26' is template, '/26/00' is not template")
+    void arrayDefinition_templateFlags() {
+        EmvMpmPackager packager = new EmvMpmPackager();
+        packager.setEmvMpmPackager(MINIMAL_FIELDS);
+        EmvMpmDefinition def = packager.create();
+
+        assertTrue(def.isTemplate("/26"));
+        assertFalse(def.isTemplate("/26/00"));
+        assertFalse(def.isTemplate("/00"));
     }
 }

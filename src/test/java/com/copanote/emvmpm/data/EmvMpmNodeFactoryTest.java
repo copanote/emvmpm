@@ -1,84 +1,81 @@
 package com.copanote.emvmpm.data;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class EmvMpmNodeFactoryTest {
-
-    @BeforeAll
-    public static void setUpBeforeClass() throws Exception {}
-
-    @AfterAll
-    public static void tearDownAfterClass() throws Exception {}
-
-    @BeforeEach
-    public void setUp() throws Exception {}
-
-    @AfterEach
-    public void tearDown() throws Exception {}
+@DisplayName("EmvMpmNodeFactory")
+class EmvMpmNodeFactoryTest {
 
     @Test
-    public void ceateTemplateNodeTest() {
-
-        // GIVEN
-        String expected = "2631" + "0014D4100000014010" + "0509100005832";
-
-        List<EmvMpmNode> micList = new ArrayList<>();
-        micList.add(EmvMpmNodeFactory.of(EmvMpmDataObject.of("00", "D4100000014010")));
-        micList.add(EmvMpmNodeFactory.of(EmvMpmDataObject.of("05", "100005832")));
-
-        // WHEN
-        EmvMpmNode actualTemplateNode = EmvMpmNodeFactory.createTemplate("26", micList);
-        String actual = actualTemplateNode.toQrCodeData();
-
-        // THEN
-        assertEquals(expected, actual);
+    @DisplayName("root() creates a root node with no parent and ROOT data")
+    void root_isRoot() {
+        EmvMpmNode root = EmvMpmNodeFactory.root();
+        assertTrue(root.isRoot());
+        assertNull(root.getParent());
+        assertEquals("/", root.getData().getId());
     }
 
     @Test
-    public void constructTreeTest() {
+    @DisplayName("createPrimitive() creates a primitive leaf node")
+    void createPrimitive_isPrimitive() {
+        EmvMpmNode node = EmvMpmNodeFactory.createPrimitive("00", "01");
+        assertTrue(node.isPrimitive());
+        assertFalse(node.isTemplate());
+        assertFalse(node.isRoot());
+    }
 
-        EmvMpmNode root = EmvMpmNodeFactory.root();
+    @Test
+    @DisplayName("createTemplate() creates template with correct ILV serialization")
+    void createTemplate_serialization() {
+        List<EmvMpmNode> children = Arrays.asList(
+                EmvMpmNodeFactory.of(EmvMpmDataObject.of("00", "D4100000014010")),
+                EmvMpmNodeFactory.of(EmvMpmDataObject.of("05", "100005832")));
+        EmvMpmNode template = EmvMpmNodeFactory.createTemplate("26", children);
 
-        EmvMpmNode payloadFormatIndicator = EmvMpmNodeFactory.of(EmvMpmDataObject.PAYLOAD_FORMAT_INDICATOR);
-        EmvMpmNode t2 = EmvMpmNodeFactory.of(EmvMpmDataObject.of("02", "1234"));
-        EmvMpmNode t3 = EmvMpmNodeFactory.of(EmvMpmDataObject.of("03", "12345"));
-        EmvMpmNode t4 = EmvMpmNodeFactory.of(EmvMpmDataObject.of("04", "123456"));
-        EmvMpmNode t5 = EmvMpmNodeFactory.of(EmvMpmDataObject.of("05", "1234567"));
-        EmvMpmNode t6 = EmvMpmNodeFactory.of(EmvMpmDataObject.of("06", "12345678"));
-        EmvMpmNode t7 = EmvMpmNodeFactory.of(EmvMpmDataObject.of("07", "123456789"));
-        EmvMpmNode t8 = EmvMpmNodeFactory.of(EmvMpmDataObject.of("08", "1234567890"));
+        String expected = "2631" + "0014D4100000014010" + "0509100005832";
+        assertEquals(expected, template.toQrCodeData());
+    }
 
-        List<EmvMpmNode> micList = new ArrayList<>();
-        micList.add(EmvMpmNodeFactory.of(EmvMpmDataObject.of("00", "D4100000014010")));
-        micList.add(EmvMpmNodeFactory.of(EmvMpmDataObject.of("05", "100005832")));
-        EmvMpmNode mic = EmvMpmNodeFactory.createTemplate("26", micList);
-        mic.add(EmvMpmNodeFactory.of(EmvMpmDataObject.of("09", "9999")));
+    @Test
+    @DisplayName("createTemplate() node is recognized as template")
+    void createTemplate_isTemplate() {
+        List<EmvMpmNode> children = Arrays.asList(EmvMpmNodeFactory.createPrimitive("00", "TEST"));
+        EmvMpmNode template = EmvMpmNodeFactory.createTemplate("26", children);
+        assertTrue(template.isTemplate());
+        assertFalse(template.isPrimitive());
+        assertFalse(template.isRoot());
+    }
 
-        List<EmvMpmNode> micList2 = new ArrayList<>();
-        micList.add(EmvMpmNodeFactory.of(EmvMpmDataObject.of("00", "D4100000014010")));
-        micList.add(EmvMpmNodeFactory.of(EmvMpmDataObject.of("05", "100005832")));
-        EmvMpmNode mic2 = EmvMpmNodeFactory.createTemplate("55", micList);
-        mic2.add(EmvMpmNodeFactory.of(EmvMpmDataObject.of("09", "9999")));
+    @Test
+    @DisplayName("emptyCrc() creates CRC node with id '63'")
+    void emptyCrc_hasCorrectId() {
+        EmvMpmNode crc = EmvMpmNodeFactory.emptyCrc();
+        assertEquals("63", crc.getData().getId());
+    }
 
-        root.add(payloadFormatIndicator);
-        root.add(t2);
-        root.add(t3);
-        root.add(t4);
-        root.add(t5);
-        root.add(t6);
-        root.add(t7);
-        root.add(t8);
-        root.add(mic);
-        root.add(mic2);
-        root.markCrc();
-        System.out.println(root.toQrCodeData());
+    @Test
+    @DisplayName("dynamicPim() has value '12'")
+    void dynamicPim_hasValue12() {
+        EmvMpmNode pim = EmvMpmNodeFactory.dynamicPim();
+        assertEquals("12", pim.getData().getValue());
+    }
+
+    @Test
+    @DisplayName("staticPim() has value '11'")
+    void staticPim_hasValue11() {
+        EmvMpmNode pim = EmvMpmNodeFactory.staticPim();
+        assertEquals("11", pim.getData().getValue());
+    }
+
+    @Test
+    @DisplayName("of(data) creates node with null parent and null children")
+    void of_data_noParentNoChildren() {
+        EmvMpmNode node = EmvMpmNodeFactory.of(EmvMpmDataObject.of("01", "12"));
+        assertNull(node.getParent());
+        assertNull(node.getChildren());
     }
 }
