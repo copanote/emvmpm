@@ -3,8 +3,10 @@ package com.copanote.emvmpm.parser;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.copanote.emvmpm.data.EmvMpmNode;
+import com.copanote.emvmpm.definition.DataObjectDef;
 import com.copanote.emvmpm.definition.EmvMpmDefinition;
 import com.copanote.emvmpm.definition.packager.EmvMpmPackager;
+import java.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -70,5 +72,50 @@ class EmvMpmParserTest {
     void parseWithoutDefinition_throwsForInvalidQr() {
         String invalidQr = "1030512345010211625603091000058320515MQ2020000047618060800000000070800000001";
         assertThrows(RuntimeException.class, () -> EmvMpmParser.parse(invalidQr));
+    }
+
+    // ── parseAndDefinitionValidation() ───────────────────────────────────────
+
+    @Test
+    @DisplayName("parseAndDefinitionValidation() returns the parsed root when every tag is defined")
+    void parseAndDefinitionValidation_allTagsDefined_returnsRoot() {
+        DataObjectDef[] fields = {
+            new DataObjectDef("00", "Payload Format Indicator", DataObjectDef.Type.PRIMITIVE),
+        };
+        EmvMpmDefinition minimalDef = EmvMpmDefinition.of(Arrays.asList(fields));
+
+        EmvMpmNode node = EmvMpmParser.parseAndDefinitionValidation("000201", minimalDef);
+
+        assertNotNull(node);
+        assertTrue(node.findChild("00").isPresent());
+    }
+
+    @Test
+    @DisplayName("parseAndDefinitionValidation() throws when a tag is not in the definition")
+    void parseAndDefinitionValidation_undefinedTag_throws() {
+        DataObjectDef[] fields = {
+            new DataObjectDef("00", "Payload Format Indicator", DataObjectDef.Type.PRIMITIVE),
+        };
+        EmvMpmDefinition minimalDef = EmvMpmDefinition.of(Arrays.asList(fields));
+
+        // tag "97" is not declared in minimalDef
+        String dataWithUndefinedTag = "000201970241";
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> EmvMpmParser.parseAndDefinitionValidation(dataWithUndefinedTag, minimalDef));
+        assertTrue(ex.getMessage().contains("/97"), "message should mention the offending tag: " + ex.getMessage());
+    }
+
+    // ── malformed / truncated data ───────────────────────────────────────────
+
+    @Test
+    @DisplayName("parse(qr) throws a clear error when declared length exceeds remaining data")
+    void parse_truncatedData_throwsClearError() {
+        // tag "00" declares length 05 but only 2 characters ("AB") remain
+        String truncated = "0005AB";
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> EmvMpmParser.parse(truncated));
+        assertTrue(ex.getMessage().contains("00"), "message should mention the offending tag: " + ex.getMessage());
     }
 }

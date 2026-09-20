@@ -48,17 +48,32 @@ public class EmvMpmParser {
         return __parse(EmvMpmNodeFactory.root(), data, def);
     }
 
-    // TODO:: implement this method
     /**
-     * definition으로 파싱한 결과를 definition 자체와 대조 검증한다 (현재 미구현).
+     * definition을 참조해서 파싱한 뒤, 파싱된 트리의 모든 태그가 definition에 정의돼 있는지 검증한다.
+     * {@link #parse(String, EmvMpmDefinition)}와 달리, definition에 없는 태그가 하나라도 있으면 결과를
+     * 버리지 않고 예외를 던진다.
      *
      * @param data 원시 EMV MPM 데이터 문자열
-     * @param def 검증에 사용할 definition
-     * @return 현재는 항상 null
+     * @param def 파싱 및 검증에 사용할 definition
+     * @return 검증을 통과한 파싱 결과 root 노드
+     * @throws IllegalArgumentException definition에 정의되지 않은 태그가 발견된 경우
      */
     public static EmvMpmNode parseAndDefinitionValidation(String data, EmvMpmDefinition def) {
         EmvMpmNode parsedNode = __parse(EmvMpmNodeFactory.root(), data, def);
-        return null;
+        validateAgainstDefinition(parsedNode, def);
+        return parsedNode;
+    }
+
+    private static void validateAgainstDefinition(EmvMpmNode node, EmvMpmDefinition def) {
+        if (!node.isRoot() && !def.find(node.getCanonicalId()).isPresent()) {
+            throw new IllegalArgumentException(
+                    "Tag \"" + node.getCanonicalId() + "\" is not defined in the given definition");
+        }
+        if (node.getChildren() != null) {
+            for (EmvMpmNode child : node.getChildren()) {
+                validateAgainstDefinition(child, def);
+            }
+        }
     }
 
     // parse EmvMpm without Definition
@@ -133,7 +148,10 @@ public class EmvMpmParser {
         cursor += LEN_LENGTH;
         int iLength = Integer.parseInt(sLentgh);
 
-        if (cursor + iLength <= data.length()) {}
+        if (cursor + iLength > data.length()) {
+            throw new IllegalArgumentException("Malformed EMV MPM data: tag \"" + id + "\" declares length " + iLength
+                    + " but only " + (data.length() - cursor) + " characters remain");
+        }
 
         String value = data.substring(cursor, cursor + iLength);
         cursor += iLength;
