@@ -176,6 +176,19 @@ class EmvMpmNodeTest {
         assertTrue(lengthAfter > lengthBefore, "Template length should increase after adding a child");
     }
 
+    @Test
+    @DisplayName("add() throws when combined child ILV length exceeds two-digit limit")
+    void add_toTemplate_lengthOverflow_throws() {
+        List<EmvMpmNode> children =
+                new ArrayList<>(Arrays.asList(EmvMpmNodeFactory.of(EmvMpmDataObject.of("00", "A"))));
+        EmvMpmNode template = EmvMpmNodeFactory.createTemplate("26", children);
+
+        String longValue = "A".repeat(91);
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> template.add(EmvMpmNodeFactory.of(EmvMpmDataObject.of("01", longValue))));
+    }
+
     // ── sortById() ────────────────────────────────────────────────────────
 
     @Test
