@@ -164,13 +164,21 @@ public class EmvMpmDataObject implements Comparable<EmvMpmDataObject>, Cloneable
     }
 
     /**
-     * definition을 참고해서 이 데이터 객체를 사람이 읽기 좋은 형태로 설명한다.
+     * definition을 참고해서 이 데이터 객체를 사람이 읽기 좋은 형태로 설명하려는 메서드였으나, 지원하지
+     * 않는다.
      *
-     * @param def 태그의 의미를 조회할 definition
-     * @return 상세 설명 문자열 (현재 미구현)
+     * <p>{@link EmvMpmDataObject}는 부모/경로 정보를 갖지 않아서 자신의 두 자리 {@code id}만으로는
+     * definition에서 올바른 항목을 조회할 canonical path(예: "/62/50/00")를 만들 수 없다. bare id로
+     * 조회하면 같은 id를 쓰는 다른 위치의 필드(예: 여러 template에 등장하는 "00")와 혼동되어 잘못된 설명을
+     * 반환할 위험이 있어, 차라리 항상 빈 문자열을 반환한다.
+     *
+     * @param def 사용되지 않음
+     * @return 항상 빈 문자열
+     * @deprecated canonical path 정보가 있는 {@link EmvMpmNode#getCanonicalId()}와
+     *     {@link EmvMpmDefinition#find(String)}을 노드 단위로 직접 사용하라.
      */
+    @Deprecated
     public String toDetailedString(EmvMpmDefinition def) {
-
         return "";
     }
 
