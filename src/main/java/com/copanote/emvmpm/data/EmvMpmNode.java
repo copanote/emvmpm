@@ -148,6 +148,8 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
      * 재계산한다.
      *
      * @param node 추가할 자식 노드
+     * @throws IllegalArgumentException 자식들의 ILV 길이 합이 99를 초과해서 두 자리 length로 표현할 수
+     *     없는 경우
      */
     public void add(EmvMpmNode node) {
 
@@ -161,6 +163,9 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
             // recalculate parent's length and value
             int len =
                     this.children.stream().map(i -> i.getData().getILVLength()).reduce(0, Integer::sum);
+            if (len > 99) {
+                throw new IllegalArgumentException("length shall have a value 0 to 99");
+            }
             String twoDigitLength = String.format("%02d", len);
             String value =
                     this.children.stream().map(i -> i.getData().toEmvMpmData()).reduce("", String::concat);
