@@ -2,6 +2,7 @@ package com.copanote.emvmpm.data;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -296,9 +297,15 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
         this.add(emptyCrc);
     }
 
-    // TODO
-    /** 자식 노드를 ID 기준으로 정렬한다 (현재 미구현). */
-    public void sortById() {}
+    /**
+     * 자식 노드를 태그 ID의 자연 순서({@link #compareTo(EmvMpmNode)}, 즉 {@link EmvMpmDataObject}의 id
+     * 사전순)로 정렬한다. 자식이 없으면 아무 일도 하지 않는다.
+     */
+    public void sortById() {
+        if (children != null) {
+            Collections.sort(children);
+        }
+    }
 
     @Override
     public int compareTo(EmvMpmNode o) {

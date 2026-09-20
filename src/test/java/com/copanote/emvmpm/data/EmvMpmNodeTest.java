@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -173,5 +174,29 @@ class EmvMpmNodeTest {
         int lengthAfter = Integer.parseInt(template.getData().getLength());
 
         assertTrue(lengthAfter > lengthBefore, "Template length should increase after adding a child");
+    }
+
+    // ── sortById() ────────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("sortById() orders children by ascending tag id")
+    void sortById_ordersChildrenAscending() {
+        EmvMpmNode parent = EmvMpmNodeFactory.root();
+        parent.add(EmvMpmNodeFactory.of(EmvMpmDataObject.of("05", "E")));
+        parent.add(EmvMpmNodeFactory.of(EmvMpmDataObject.of("01", "A")));
+        parent.add(EmvMpmNodeFactory.of(EmvMpmDataObject.of("03", "C")));
+
+        parent.sortById();
+
+        List<String> ids =
+                parent.getChildren().stream().map(n -> n.getData().getId()).collect(Collectors.toList());
+        assertEquals(Arrays.asList("01", "03", "05"), ids);
+    }
+
+    @Test
+    @DisplayName("sortById() on node without children does not throw")
+    void sortById_noChildren_doesNotThrow() {
+        EmvMpmNode primitive = EmvMpmNodeFactory.createPrimitive("00", "01");
+        assertDoesNotThrow(primitive::sortById);
     }
 }
