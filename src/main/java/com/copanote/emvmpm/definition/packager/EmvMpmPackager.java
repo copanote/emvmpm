@@ -105,21 +105,32 @@ public class EmvMpmPackager {
     }
 
     private Document parse(String path) throws ParserConfigurationException, IOException, SAXException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        return builder.parse(path);
+        return newSecureDocumentBuilder().parse(path);
     }
 
     private Document parse(File file) throws ParserConfigurationException, IOException, SAXException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        return builder.parse(file);
+        return newSecureDocumentBuilder().parse(file);
     }
 
     private Document parse(InputStream inputStream) throws ParserConfigurationException, IOException, SAXException {
+        return newSecureDocumentBuilder().parse(inputStream);
+    }
+
+    /**
+     * XXE(XML External Entity) 공격을 막도록 DOCTYPE 선언과 외부 엔티티/외부 DTD 접근을 비활성화한
+     * {@link DocumentBuilder}를 생성한다.
+     *
+     * @return XXE 방지 설정이 적용된 DocumentBuilder
+     * @throws ParserConfigurationException 요청한 보안 설정을 파서가 지원하지 않는 경우
+     */
+    private static DocumentBuilder newSecureDocumentBuilder() throws ParserConfigurationException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        return builder.parse(inputStream);
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        factory.setXIncludeAware(false);
+        factory.setExpandEntityReferences(false);
+        return factory.newDocumentBuilder();
     }
 
     private void configure(Document doc) {
