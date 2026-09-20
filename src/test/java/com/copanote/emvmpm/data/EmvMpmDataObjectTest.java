@@ -1,11 +1,11 @@
 package com.copanote.emvmpm.data;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("EmvMpmDataObject")
 class EmvMpmDataObjectTest {
@@ -26,6 +26,19 @@ class EmvMpmDataObjectTest {
         assertEquals("00", obj.getId());
         assertEquals("02", obj.getLength());
         assertEquals("01", obj.getValue());
+    }
+
+    @Test
+    @DisplayName("of(id, intLength, value) - accepts boundary length 99")
+    void of_intLength_acceptsMaxBoundary() {
+        EmvMpmDataObject obj = EmvMpmDataObject.of("00", 99, "X");
+        assertEquals("99", obj.getLength());
+    }
+
+    @Test
+    @DisplayName("of(id, intLength, value) - throws when length == 100 (would overflow the two-digit field)")
+    void of_intLength_throwsAtOverflowBoundary() {
+        assertThrows(IllegalArgumentException.class, () -> EmvMpmDataObject.of("00", 100, "X"));
     }
 
     @Test
@@ -51,16 +64,12 @@ class EmvMpmDataObjectTest {
     @Test
     @DisplayName("getILVLength() - returns total character count of id+length+value")
     void getILVLength() {
-        EmvMpmDataObject obj = EmvMpmDataObject.of("26", "HELLO");  // id=2, len=2, value=5
+        EmvMpmDataObject obj = EmvMpmDataObject.of("26", "HELLO"); // id=2, len=2, value=5
         assertEquals(9, obj.getILVLength());
     }
 
     @ParameterizedTest(name = "id={0} value={1} => toEmvMpmData={2}")
-    @CsvSource({
-        "00, 01, 000201",
-        "01, 11, 010211",
-        "01, 12, 010212"
-    })
+    @CsvSource({"00, 01, 000201", "01, 11, 010211", "01, 12, 010212"})
     @DisplayName("predefined constants produce correct EMV MPM data strings")
     void predefinedConstants(String id, String value, String expected) {
         EmvMpmDataObject obj = EmvMpmDataObject.of(id, value);

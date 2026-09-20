@@ -47,12 +47,12 @@ public class EmvMpmDataObject implements Comparable<EmvMpmDataObject>, Cloneable
      * @param length value의 길이(0~99)
      * @param value 원시 값 문자열
      * @return 생성된 데이터 객체
-     * @throws IllegalArgumentException length가 0 미만이거나 100을 초과하는 경우
+     * @throws IllegalArgumentException length가 0 미만이거나 99를 초과하는 경우
      */
     public static EmvMpmDataObject of(String id, int length, String value) {
 
-        if (length < 0 || length > 100) {
-            throw new IllegalArgumentException("length shall have a vale 0 to 99");
+        if (length < 0 || length > 99) {
+            throw new IllegalArgumentException("length shall have a value 0 to 99");
         }
 
         String twoDigitLength = String.format("%02d", length);
