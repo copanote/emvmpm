@@ -1,0 +1,19 @@
+[type] 제목 (50자 이내)
+
+# 본문 (선택, 필요할 때만 작성)
+# - 상세 변경사항 1
+# - 상세 변경사항 2
+
+# --- 커밋 타입 (자세한 설명은 CONTRIBUTING.md 참고) ---
+# feat:     새로운 기능 추가
+# fix:      버그 수정
+# refactor: 동작 변경 없는 코드 구조 개선
+# test:     테스트 추가/수정
+# doc:      문서 추가/수정 (README, Javadoc, USAGE 등)
+# style:    포맷팅 등 코드 스타일 변경 (동작 영향 없음)
+# ci:       CI/CD 설정 변경
+# security: 보안 취약점 수정
+# api:      공개 API 변경 (추가/제거/시그니처 변경)
+# perf:     성능 개선(Performance)
+# chore:    기타 잡다한 작업 (Chore)
+# cleanup:  코드 정리 (Cleanup) - 사용하지 않는 변수, 미사용 Import, 죽은 코드(Dead Code) 제거 등 단순 정돈 작업
