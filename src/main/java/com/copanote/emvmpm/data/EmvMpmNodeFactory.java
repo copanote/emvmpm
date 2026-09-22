@@ -63,17 +63,6 @@ public class EmvMpmNodeFactory {
     }
 
     /**
-     * 부모가 지정된 노드를 생성한다. {@code data}는 노드에 담기 전에 복사된다.
-     *
-     * @param data 노드가 감쌀 ILV 데이터 (복사되어 사용됨)
-     * @param parent 부모 노드
-     * @return 생성된 노드
-     */
-    public static EmvMpmNode of(EmvMpmDataObject data, EmvMpmNode parent) {
-        return new EmvMpmNode(copyOf(data), parent, null);
-    }
-
-    /**
      * 자식 목록이 지정된 노드를 생성한다. {@code data}는 노드에 담기 전에 복사된다.
      *
      * @param data 노드가 감쌀 ILV 데이터 (복사되어 사용됨)

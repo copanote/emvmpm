@@ -59,15 +59,6 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
     }
 
     /**
-     * 이 노드가 감싸는 ILV 데이터를 설정한다.
-     *
-     * @param data ILV 데이터 객체
-     */
-    public void setData(EmvMpmDataObject data) {
-        this.data = data;
-    }
-
-    /**
      * 부모 노드를 반환한다.
      *
      * @return 부모 노드, root인 경우 null
@@ -77,11 +68,14 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
     }
 
     /**
-     * 부모 노드를 설정한다.
+     * 부모 노드를 설정한다. 트리 배선은 {@link #add(EmvMpmNode)}와 {@link EmvMpmNodeFactory}만 수행해야
+     * 하므로 패키지 내부로 한정한다 — 외부 코드가 {@code add()}를 거치지 않고 parent만 따로 바꿔서, 그
+     * parent의 children 목록에는 없는데 {@link #getParent()}는 그 parent를 가리키는 식으로 트리를 반쪽만
+     * 배선하는 것을 막는다.
      *
      * @param parent 부모 노드
      */
-    public void setParent(EmvMpmNode parent) {
+    void setParent(EmvMpmNode parent) {
         this.parent = parent;
     }
 
@@ -93,15 +87,6 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
      */
     public List<EmvMpmNode> getChildren() {
         return children == null ? Collections.emptyList() : Collections.unmodifiableList(children);
-    }
-
-    /**
-     * 자식 노드 목록을 설정한다.
-     *
-     * @param children 자식 노드 목록
-     */
-    public void setChildren(List<EmvMpmNode> children) {
-        this.children = children;
     }
 
     /*
@@ -140,7 +125,8 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 
     /**
      * 자식 노드를 추가한다. 이 노드가 template이 되면 자식들의 ILV를 이어 붙여 자신의 length/value를
-     * 재계산한다.
+     * 재계산하고, 그 변화를 부모(및 그 위 조상들)에게까지 전파한다. 따라서 이미 다른 template에 부착된
+     * 노드에 나중에 자식을 추가해도 조상들의 length/value가 stale해지지 않는다.
      *
      * @param node 추가할 자식 노드
      * @throws IllegalArgumentException 자식들의 ILV 길이 합이 99를 초과해서 두 자리 length로 표현할 수
@@ -154,13 +140,26 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
         node.setParent(this);
         children.add(node);
 
-        if (isTemplate()) {
-            // recalculate parent's length and value
-            int len =
-                    this.children.stream().map(i -> i.getData().getILVLength()).reduce(0, Integer::sum);
-            String value =
-                    this.children.stream().map(i -> i.getData().toEmvMpmData()).reduce("", String::concat);
-            setData(EmvMpmDataObject.of(getData().getId(), len, value));
+        recalculate();
+    }
+
+    /**
+     * 현재 children으로부터 이 노드의 length/value를 재계산하고, 부모가 있으면 부모의 재계산도 재귀적으로
+     * 트리거한다. {@link #add(EmvMpmNode)}가 자식을 추가할 때마다 호출하며, 이를 통해 트리에 이미 부착된
+     * template에 나중에 자식이 추가되더라도 모든 조상의 length/value가 항상 최신 상태로 유지된다는 불변식을
+     * (문서가 아니라) 코드로 보장한다.
+     */
+    private void recalculate() {
+        if (!isTemplate()) {
+            return;
+        }
+
+        int len = children.stream().map(i -> i.getData().getILVLength()).reduce(0, Integer::sum);
+        String value = children.stream().map(i -> i.getData().toEmvMpmData()).reduce("", String::concat);
+        this.data = EmvMpmDataObject.of(getData().getId(), len, value);
+
+        if (parent != null) {
+            parent.recalculate();
         }
     }
 
@@ -280,8 +279,9 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
         EmvMpmNode emptyCrc = EmvMpmNodeFactory.emptyCrc();
         String data = this.toQrCodeData() + emptyCrc.toQrCodeData();
         String crc = EmvMpmCRC.calculateEmvMpmCrc(data, StandardCharsets.UTF_8);
-        emptyCrc.setData(EmvMpmDataObject.of(
-                emptyCrc.getData().getId(), emptyCrc.getData().getLength(), crc));
+        // emptyCrc는 아직 어떤 트리에도 부착되지 않았으므로(parent == null), 필드를 직접 채워도
+        // 조상 재계산을 건너뛸 위험이 없다. 바로 뒤의 add()가 this의 재계산을 트리거한다.
+        emptyCrc.data = EmvMpmDataObject.of(emptyCrc.getData().getId(), emptyCrc.getData().getLength(), crc);
         this.add(emptyCrc);
     }
 

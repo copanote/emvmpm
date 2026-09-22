@@ -9,7 +9,6 @@ import com.copanote.emvmpm.definition.EmvMpmDefinition;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * 원시 EMV MPM 데이터 문자열을 {@link EmvMpmNode} 트리로 파싱한다.
@@ -87,12 +86,11 @@ public class EmvMpmParser {
     }
 
     private static EmvMpmNode __parse(EmvMpmNode node, String childData, EmvMpmDefinition def) {
-        List<EmvMpmDataObject> children = parseChild(childData);
-        List<EmvMpmNode> childrenNode =
-                children.stream().map(e -> EmvMpmNodeFactory.of(e, node)).collect(Collectors.toList());
-        node.setChildren(childrenNode);
+        for (EmvMpmDataObject child : parseChild(childData)) {
+            node.add(EmvMpmNodeFactory.of(child));
+        }
 
-        for (EmvMpmNode emvMpmNode : childrenNode) {
+        for (EmvMpmNode emvMpmNode : node.getChildren()) {
             if (isTemplate(emvMpmNode, def)) {
                 __parse(emvMpmNode, emvMpmNode.getData().getValue(), def);
             }
@@ -101,10 +99,9 @@ public class EmvMpmParser {
     }
 
     private static EmvMpmNode __parseWithoutDef(EmvMpmNode node, String childData) {
-        List<EmvMpmDataObject> children = parseChild(childData);
-        List<EmvMpmNode> childrenNode =
-                children.stream().map(e -> EmvMpmNodeFactory.of(e, node)).collect(Collectors.toList());
-        node.setChildren(childrenNode);
+        for (EmvMpmDataObject child : parseChild(childData)) {
+            node.add(EmvMpmNodeFactory.of(child));
+        }
         return node;
     }
 

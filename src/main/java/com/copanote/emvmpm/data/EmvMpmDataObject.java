@@ -1,5 +1,7 @@
 package com.copanote.emvmpm.data;
 
+import java.util.Objects;
+
 /**
  * EMV MPM 스펙의 원시 ID-Length-Value(ILV) 단위를 나타낸다.
  *
@@ -137,6 +139,40 @@ public class EmvMpmDataObject implements Comparable<EmvMpmDataObject>, Cloneable
         return "EmvMpmDataObject [id=" + id + ", length=" + length + ", value=" + value + "]";
     }
 
+    /**
+     * id, length, value 세 필드가 모두 같으면 동등하다고 본다.
+     *
+     * <p>이 동등성은 {@link #compareTo(EmvMpmDataObject)}(id만 비교)와 일부러 일관되지 않는다. {@code
+     * compareTo}는 {@link EmvMpmNode#sortById()}가 태그 id 순으로 정렬할 때만 쓰이는 반면, {@code equals}는
+     * "완전히 같은 ILV 트리플인가"를 판별해야 하므로 length/value 차이도 구분해야 한다.
+     *
+     * @param o 비교할 객체
+     * @return id, length, value가 모두 같으면 true
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EmvMpmDataObject)) {
+            return false;
+        }
+        EmvMpmDataObject that = (EmvMpmDataObject) o;
+        return id.equals(that.id) && length.equals(that.length) && value.equals(that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, length, value);
+    }
+
+    /**
+     * 태그 id만을 기준으로 자연 순서를 정한다. {@link EmvMpmNode#sortById()}에서 태그 id 순 정렬에
+     * 사용되며, {@link #equals(Object)}(id, length, value 모두 비교)와는 의도적으로 일관되지 않는다.
+     *
+     * @param o 비교할 객체
+     * @return id를 사전순으로 비교한 결과
+     */
     @Override
     public int compareTo(EmvMpmDataObject o) {
         return this.getId().compareTo(o.getId());

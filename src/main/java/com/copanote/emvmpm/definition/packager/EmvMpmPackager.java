@@ -1,5 +1,6 @@
 package com.copanote.emvmpm.definition.packager;
 
+import com.copanote.emvmpm.EmvMpmException;
 import com.copanote.emvmpm.definition.DataObjectDef;
 import com.copanote.emvmpm.definition.EmvMpmDefinition;
 import java.io.File;
@@ -71,37 +72,42 @@ public class EmvMpmPackager {
      * emvmpm 정의 XML 파일 경로로 packager를 구성한다.
      *
      * @param path emvmpm 정의 XML 파일 경로
-     * @throws ParserConfigurationException XML 파서를 구성할 수 없는 경우
-     * @throws SAXException XML 파싱에 실패한 경우
-     * @throws IOException 파일을 읽을 수 없는 경우
+     * @throws EmvMpmException XML 파서를 구성할 수 없거나, 파일을 읽을 수 없거나, XML 파싱에 실패한 경우
      */
-    public void setEmvMpmPackager(String path) throws ParserConfigurationException, SAXException, IOException {
-        configure(parse(path));
+    public void setEmvMpmPackager(String path) {
+        try {
+            configure(parse(path));
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            throw new EmvMpmException("Failed to load EMV MPM definition XML from path \"" + path + "\"", e);
+        }
     }
 
     /**
      * emvmpm 정의 XML 파일로 packager를 구성한다.
      *
      * @param file emvmpm 정의 XML 파일
-     * @throws IOException 파일을 읽을 수 없는 경우
-     * @throws SAXException XML 파싱에 실패한 경우
-     * @throws ParserConfigurationException XML 파서를 구성할 수 없는 경우
+     * @throws EmvMpmException XML 파서를 구성할 수 없거나, 파일을 읽을 수 없거나, XML 파싱에 실패한 경우
      */
-    public void setEmvMpmPackager(File file) throws IOException, SAXException, ParserConfigurationException {
-        configure(parse(file));
+    public void setEmvMpmPackager(File file) {
+        try {
+            configure(parse(file));
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            throw new EmvMpmException("Failed to load EMV MPM definition XML from file \"" + file + "\"", e);
+        }
     }
 
     /**
      * emvmpm 정의 XML을 담은 입력 스트림으로 packager를 구성한다.
      *
      * @param inputStream emvmpm 정의 XML 입력 스트림
-     * @throws ParserConfigurationException XML 파서를 구성할 수 없는 경우
-     * @throws IOException 스트림을 읽을 수 없는 경우
-     * @throws SAXException XML 파싱에 실패한 경우
+     * @throws EmvMpmException XML 파서를 구성할 수 없거나, 스트림을 읽을 수 없거나, XML 파싱에 실패한 경우
      */
-    public void setEmvMpmPackager(InputStream inputStream)
-            throws ParserConfigurationException, IOException, SAXException {
-        configure(parse(inputStream));
+    public void setEmvMpmPackager(InputStream inputStream) {
+        try {
+            configure(parse(inputStream));
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            throw new EmvMpmException("Failed to load EMV MPM definition XML from input stream", e);
+        }
     }
 
     private Document parse(String path) throws ParserConfigurationException, IOException, SAXException {

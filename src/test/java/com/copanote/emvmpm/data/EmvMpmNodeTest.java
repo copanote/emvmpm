@@ -189,6 +189,30 @@ class EmvMpmNodeTest {
                 () -> template.add(EmvMpmNodeFactory.of(EmvMpmDataObject.of("01", longValue))));
     }
 
+    @Test
+    @DisplayName("add() to an already-attached grandchild template keeps ancestor length/value in sync")
+    void add_toAttachedGrandchildTemplate_propagatesToAncestors() {
+        EmvMpmNode root = EmvMpmNodeFactory.root();
+        EmvMpmNode outer = EmvMpmNodeFactory.of(EmvMpmDataObject.of("62", "00", ""));
+        EmvMpmNode inner = EmvMpmNodeFactory.of(EmvMpmDataObject.of("50", "00", ""));
+
+        // outer is attached to root, and inner to outer, before either has any children —
+        // i.e. built top-down with add() only, not bottom-up via createTemplate().
+        root.add(outer);
+        outer.add(inner);
+        inner.add(EmvMpmNodeFactory.of(EmvMpmDataObject.of("00", "AB")));
+
+        assertEquals("AB", root.find("/62/50/00").get().getData().getValue());
+        assertEquals(
+                inner.getData().toEmvMpmData(),
+                outer.getData().getValue(),
+                "outer's cached value must reflect inner's latest serialized data, not a stale snapshot");
+        assertEquals(
+                outer.getData().toEmvMpmData(),
+                root.toQrCodeData(),
+                "root's serialization must reflect outer's latest serialized data");
+    }
+
     // ── sortById() ────────────────────────────────────────────────────────
 
     @Test

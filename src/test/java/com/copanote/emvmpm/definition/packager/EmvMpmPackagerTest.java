@@ -2,13 +2,18 @@ package com.copanote.emvmpm.definition.packager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.copanote.emvmpm.EmvMpmException;
 import com.copanote.emvmpm.definition.DataObjectDef;
 import com.copanote.emvmpm.definition.EmvMpmDefinition;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.xml.sax.SAXException;
 
 @DisplayName("EmvMpmPackager")
 class EmvMpmPackagerTest {
@@ -109,5 +114,27 @@ class EmvMpmPackagerTest {
         assertTrue(def.isTemplate("/26"));
         assertFalse(def.isTemplate("/26/00"));
         assertFalse(def.isTemplate("/00"));
+    }
+
+    @Test
+    @DisplayName(
+            "setEmvMpmPackager(InputStream) wraps malformed XML in unchecked EmvMpmException, not raw SAXException")
+    void loadFromInputStream_malformedXml_throwsEmvMpmException() {
+        EmvMpmPackager packager = new EmvMpmPackager();
+        ByteArrayInputStream malformed = new ByteArrayInputStream("<mpmpackager".getBytes(StandardCharsets.UTF_8));
+
+        EmvMpmException e =
+                assertThrows(EmvMpmException.class, () -> packager.setEmvMpmPackager(malformed));
+        assertInstanceOf(SAXException.class, e.getCause());
+    }
+
+    @Test
+    @DisplayName("setEmvMpmPackager(String path) wraps a missing file in unchecked EmvMpmException, not raw IOException")
+    void loadFromPath_missingFile_throwsEmvMpmException() {
+        EmvMpmPackager packager = new EmvMpmPackager();
+
+        EmvMpmException e = assertThrows(
+                EmvMpmException.class, () -> packager.setEmvMpmPackager("no-such-file-emvmpm.xml"));
+        assertInstanceOf(IOException.class, e.getCause());
     }
 }

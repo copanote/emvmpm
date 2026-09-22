@@ -111,4 +111,31 @@ class EmvMpmDataObjectTest {
         assertTrue(b.compareTo(a) > 0);
         assertEquals(0, a.compareTo(EmvMpmDataObject.of("00", "Z")));
     }
+
+    @Test
+    @DisplayName("equals() - true for same id/length/value, even across separate instances")
+    void equals_sameFields_areEqual() {
+        EmvMpmDataObject a = EmvMpmDataObject.of("26", "ABCD");
+        EmvMpmDataObject b = EmvMpmDataObject.of("26", "ABCD");
+        assertNotSame(a, b);
+        assertEquals(a, b);
+        assertEquals(a.hashCode(), b.hashCode());
+    }
+
+    @Test
+    @DisplayName("equals() - false when only value differs, even though compareTo() by id alone says equal")
+    void equals_sameIdDifferentValue_areNotEqual() {
+        EmvMpmDataObject a = EmvMpmDataObject.of("00", "X");
+        EmvMpmDataObject b = EmvMpmDataObject.of("00", "Z");
+        assertEquals(0, a.compareTo(b), "compareTo() only looks at id, so this stays 0");
+        assertNotEquals(a, b, "equals() also looks at value, so same-id differing-value objects differ");
+    }
+
+    @Test
+    @DisplayName("equals() - false when compared to null or a different type")
+    void equals_nullOrDifferentType_isFalse() {
+        EmvMpmDataObject a = EmvMpmDataObject.of("00", "X");
+        assertNotEquals(null, a);
+        assertNotEquals("00" + "02" + "X", a);
+    }
 }
