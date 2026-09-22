@@ -12,7 +12,7 @@ import java.util.Optional;
  */
 public class EmvMpmDefinition {
     // Data Source
-    private List<DataObjectDef> definitionList;
+    private final List<DataObjectDef> definitionList;
 
     // need Root Node?
     /**
@@ -50,7 +50,7 @@ public class EmvMpmDefinition {
     }
 
     private Optional<DataObjectDef> _find(List<DataObjectDef> defs, String canonicalId) {
-        Optional<DataObjectDef> result = null;
+        Optional<DataObjectDef> result;
 
         for (DataObjectDef dataObjectDef : defs) {
             if (dataObjectDef.getCanonicalId().equalsIgnoreCase(canonicalId)) {
@@ -76,13 +76,8 @@ public class EmvMpmDefinition {
      */
     public boolean isTemplate(String canonicalId) {
         Optional<DataObjectDef> dod = find(canonicalId);
-        if (dod.isPresent()) {
-            if (DataObjectDef.Type.TEMPLATE == dod.get().getType()) {
-                return true;
-            }
-        }
+        return dod.filter(dataObjectDef -> DataObjectDef.Type.TEMPLATE == dataObjectDef.getType()).isPresent();
 
-        return false;
     }
 
     /**

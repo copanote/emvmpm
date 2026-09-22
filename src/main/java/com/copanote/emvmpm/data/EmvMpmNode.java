@@ -112,10 +112,7 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
      * @return 부모가 없고 데이터 ID가 {@link EmvMpmDataObject#ROOT}의 ID와 같으면 true
      */
     public boolean isRoot() {
-        if (parent == null && data.getId().equals(EmvMpmDataObject.ROOT.getId())) {
-            return true;
-        }
-        return false;
+        return parent == null && data.getId().equals(EmvMpmDataObject.ROOT.getId());
     }
 
     /**
@@ -137,10 +134,7 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
     }
 
     private boolean hasChild() {
-        if (children == null || children.isEmpty()) {
-            return false;
-        }
-        return true;
+        return children != null && !children.isEmpty();
     }
 
     /**
@@ -195,8 +189,7 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
     public Optional<EmvMpmNode> find(String canonicalId) {
 
         List<String> idList = EmvMpmPaths.parsePath(canonicalId);
-        List<String> list = new ArrayList<>();
-        list.addAll(idList);
+        List<String> list = new ArrayList<>(idList);
 
         String first = list.remove(0);
         if (!this.getData().getId().equals(first)) {
@@ -208,7 +201,7 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
 
         for (String id : list) {
             t = emn.findChild(id);
-            if (false == t.isPresent()) {
+            if (!t.isPresent()) {
                 return t;
             } else {
                 emn = t.get();
@@ -250,18 +243,18 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
         if (isPrimitive()) {
             return getData().toEmvMpmData();
         } else {
-            String result = "";
+            StringBuilder result = new StringBuilder();
 
             if (isTemplate()) {
-                result = getData().getId() + getData().getLength();
+                result = new StringBuilder(getData().getId() + getData().getLength());
             } else if (isRoot()) {
-                result = "";
+                result = new StringBuilder();
             }
 
             for (EmvMpmNode emvMpmNode : getChildren()) {
-                result += emvMpmNode.toQrCodeData();
+                result.append(emvMpmNode.toQrCodeData());
             }
-            return result;
+            return result.toString();
         }
     }
 

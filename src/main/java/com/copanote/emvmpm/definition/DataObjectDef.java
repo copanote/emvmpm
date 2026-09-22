@@ -226,11 +226,7 @@ public class DataObjectDef {
      * @return 부모가 없으면 true
      */
     public boolean isRootDataObject() {
-        if (parent == null) {
-            return true;
-        }
-
-        return false;
+        return parent == null;
     }
 
     /**
@@ -239,10 +235,7 @@ public class DataObjectDef {
      * @return {@link Type#TEMPLATE}이면 true
      */
     public boolean isTemplate() {
-        if (Type.TEMPLATE == getType()) {
-            return true;
-        }
-        return false;
+        return Type.TEMPLATE == getType();
     }
 
     @Override

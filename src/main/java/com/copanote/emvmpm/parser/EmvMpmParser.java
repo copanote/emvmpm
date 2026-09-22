@@ -122,7 +122,7 @@ public class EmvMpmParser {
     private static List<EmvMpmDataObject> parseChild(String data) {
         List<EmvMpmDataObject> children = new ArrayList<>();
 
-        EmvMpmDataObject emdo = null;
+        EmvMpmDataObject emdo;
         int parsedLength = getTotalLength(children);
 
         while (data.length() > parsedLength) {
@@ -135,7 +135,7 @@ public class EmvMpmParser {
     }
 
     private static int getTotalLength(List<EmvMpmDataObject> list) {
-        return list.stream().mapToInt(i -> i.getILVLength()).sum();
+        return list.stream().mapToInt(EmvMpmDataObject::getILVLength).sum();
     }
 
     private static EmvMpmDataObject parseOneNode(String data) {

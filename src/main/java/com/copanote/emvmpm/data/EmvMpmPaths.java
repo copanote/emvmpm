@@ -49,15 +49,14 @@ public class EmvMpmPaths {
 
         List<String> sl = Arrays.asList(sa);
         if (mpmNodePath.startsWith(ROOT_ID)) {
-            if (sl.size() == 0) {
+            if (sl.isEmpty()) {
                 return Arrays.asList(ROOT_ID);
             } else {
                 sl.set(0, ROOT_ID);
             }
         }
 
-        List<String> result = new ArrayList<>();
-        result.addAll(sl);
+        List<String> result = new ArrayList<>(sl);
 
         return result.stream().filter(s -> !s.isEmpty()).collect(Collectors.toList());
     }

@@ -34,7 +34,7 @@ import org.xml.sax.SAXException;
  */
 public class EmvMpmPackager {
 
-    private List<DataObjectDef> FIELDS = new ArrayList<DataObjectDef>();
+    private List<DataObjectDef> FIELDS = new ArrayList<>();
 
     /** 필드 정의가 비어 있는 packager를 생성한다. {@code setEmvMpmPackager(...)} 계열 메서드로 필드를 채운 뒤 {@link #create()}를 호출한다. */
     public EmvMpmPackager() {}
@@ -144,7 +144,7 @@ public class EmvMpmPackager {
     }
 
     private List<DataObjectDef> configure(Node mpmpackager) {
-        List<DataObjectDef> result = new ArrayList<DataObjectDef>();
+        List<DataObjectDef> result = new ArrayList<>();
         NodeList dataObject = mpmpackager.getChildNodes();
 
         for (int i = 0; i < dataObject.getLength(); i++) {
