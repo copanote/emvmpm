@@ -1,6 +1,8 @@
 package com.copanote.emvmpm.definition;
 
 import com.copanote.emvmpm.data.EmvMpmPaths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,12 +18,13 @@ public class EmvMpmDefinition {
 
     // need Root Node?
     /**
-     * 최상위 필드 정의 목록으로 definition을 생성한다.
+     * 최상위 필드 정의 목록으로 definition을 생성한다. 전달받은 목록은 방어적으로 복사되므로, 호출자가
+     * 이후 원본 목록을 수정하더라도 이미 생성된 definition은 영향을 받지 않는다.
      *
      * @param definitionList 최상위 필드 정의 목록
      */
     public EmvMpmDefinition(List<DataObjectDef> definitionList) {
-        this.definitionList = definitionList;
+        this.definitionList = Collections.unmodifiableList(new ArrayList<>(definitionList));
     }
 
     /**

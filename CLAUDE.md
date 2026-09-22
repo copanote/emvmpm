@@ -34,7 +34,7 @@ mvn package              # target/emvmpm-0.1.0.jar 빌드
 ### `definition` — 태그의 의미를 설명하는 스키마
 - `DataObjectDef`: 하나의 필드에 대한 스키마 항목 — id, description, maxlength, `Type`(`PRIMITIVE`/`TEMPLATE`), 그리고(template인 경우) 자식 `DataObjectDef`들. `EmvMpmNode`/`EmvMpmDataObject`와 형태는 같지만 데이터가 아닌 스키마를 나타냅니다.
 - `EmvMpmDefinition`: 변경 불가능하고 검색 가능한 `DataObjectDef` 컬렉션(`EmvMpmDefinition.of(...)`로 생성), canonical path(`find("/26/00")`)로 조회합니다.
-- `definition.packager.EmvMpmPackager`: XML(`<mpmpackager>` 루트, 중첩된 `<dataobject id maxlength type>` 엘리먼트 — 특정 카드 스킴에 대한 스키마 예시는 리포 루트의 `emvmpm_bc.xml` 참고)로부터 `EmvMpmDefinition`을 생성합니다. `String` 경로, `File`, `InputStream`, 또는 프로그래밍 방식의 `DataObjectDef[]`/`List<DataObjectDef>`를 인자로 받습니다.
+- `definition.packager.EmvMpmPackager`: XML(`<mpmpackager>` 루트, 중첩된 `<dataobject id maxlength type>` 엘리먼트 — 특정 카드 스킴에 대한 스키마 예시는 리포 루트의 `emvmpm_bc.xml` 참고)로부터 `EmvMpmDefinition`을 생성하는 불변 클래스입니다. `String` 경로, `File`, `InputStream`, 또는 프로그래밍 방식의 `DataObjectDef[]`/`List<DataObjectDef>` 중 하나의 소스를 정적 팩토리 메서드 `of(...)`로 선택해 인스턴스를 생성합니다.
 
 ### `parser`
 - `EmvMpmParser.parse(data, definition)`: 원시 EMV MPM 데이터 문자열을 `EmvMpmNode` 트리로 파싱하며, 각 레벨에서 `EmvMpmDefinition`을 참조하여 해당 태그의 값을 template으로 재귀 파싱할지 primitive의 원시 값으로 유지할지 판단합니다.
@@ -42,7 +42,7 @@ mvn package              # target/emvmpm-0.1.0.jar 빌드
 
 ### 데이터 흐름
 
-1. 스키마 로드: `new EmvMpmPackager().setEmvMpmPackager(xmlFileOrStream)` → `.create()` → `EmvMpmDefinition`.
+1. 스키마 로드: `EmvMpmPackager.of(xmlFileOrStream)` → `.create()` → `EmvMpmDefinition`.
 2. 해당 definition을 기준으로 QR payload 문자열 파싱: `EmvMpmParser.parse(rawData, definition)` → `EmvMpmNode` 트리.
 3. `EmvMpmNode.find("/canonical/path")`로 트리를 순회/조회하거나, `toQrCodeData()`/`toHexQrCodeData()`로 다시 직렬화.
 4. 파싱 대신 트리를 프로그래밍 방식으로 만들려면 `EmvMpmNodeFactory`(`createPrimitive`/`createTemplate`/`root`)를 사용하고, `node.add(child)`로 자식을 붙인 뒤(부모 template의 length/value가 재계산됨), `node.markCrc()`로 마무리합니다.

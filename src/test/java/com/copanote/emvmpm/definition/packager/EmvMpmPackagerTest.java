@@ -33,61 +33,48 @@ class EmvMpmPackagerTest {
     };
 
     @Test
-    @DisplayName("setEmvMpmPackager(String path) loads definition from file path")
+    @DisplayName("of(String path) loads definition from file path")
     void loadFromPath_createsDefinition() throws Exception {
-        EmvMpmPackager packager = new EmvMpmPackager();
-        packager.setEmvMpmPackager("emvmpm_bc.xml");
-        EmvMpmDefinition def = packager.create();
+        EmvMpmDefinition def = EmvMpmPackager.of("emvmpm_bc.xml").create();
         assertNotNull(def);
     }
 
     @Test
-    @DisplayName("setEmvMpmPackager(File) loads definition from File object")
+    @DisplayName("of(File) loads definition from File object")
     void loadFromFile_createsDefinition() throws Exception {
-        EmvMpmPackager packager = new EmvMpmPackager();
-        packager.setEmvMpmPackager(new File("emvmpm_bc.xml"));
-        EmvMpmDefinition def = packager.create();
+        EmvMpmDefinition def = EmvMpmPackager.of(new File("emvmpm_bc.xml")).create();
         assertNotNull(def);
     }
 
     @Test
-    @DisplayName("setEmvMpmPackager(InputStream) loads definition from InputStream")
+    @DisplayName("of(InputStream) loads definition from InputStream")
     void loadFromInputStream_createsDefinition() throws Exception {
-        EmvMpmPackager packager = new EmvMpmPackager();
         File file = new File("emvmpm_bc.xml");
-        packager.setEmvMpmPackager(Files.newInputStream(file.toPath()));
-        EmvMpmDefinition def = packager.create();
+        EmvMpmDefinition def =
+                EmvMpmPackager.of(Files.newInputStream(file.toPath())).create();
         assertNotNull(def);
     }
 
     @Test
-    @DisplayName("setEmvMpmPackager(array) loads definition from DataObjectDef array")
+    @DisplayName("of(array) loads definition from DataObjectDef array")
     void loadFromArray_createsDefinition() {
-        EmvMpmPackager packager = new EmvMpmPackager();
-        packager.setEmvMpmPackager(MINIMAL_FIELDS);
-        EmvMpmDefinition def = packager.create();
+        EmvMpmDefinition def = EmvMpmPackager.of(MINIMAL_FIELDS).create();
         assertNotNull(def);
     }
 
     @Test
-    @DisplayName("setEmvMpmPackager(list) loads definition from DataObjectDef list")
+    @DisplayName("of(list) loads definition from DataObjectDef list")
     void loadFromList_createsDefinition() {
-        EmvMpmPackager packager = new EmvMpmPackager();
-        packager.setEmvMpmPackager(Arrays.asList(MINIMAL_FIELDS));
-        EmvMpmDefinition def = packager.create();
+        EmvMpmDefinition def = EmvMpmPackager.of(Arrays.asList(MINIMAL_FIELDS)).create();
         assertNotNull(def);
     }
 
     @Test
     @DisplayName("path and file sources produce equivalent definitions for '/26'")
     void pathAndFile_produceEquivalentDefinitions() throws Exception {
-        EmvMpmPackager fromPath = new EmvMpmPackager();
-        fromPath.setEmvMpmPackager("emvmpm_bc.xml");
-        EmvMpmDefinition defPath = fromPath.create();
-
-        EmvMpmPackager fromFile = new EmvMpmPackager();
-        fromFile.setEmvMpmPackager(new File("emvmpm_bc.xml"));
-        EmvMpmDefinition defFile = fromFile.create();
+        EmvMpmDefinition defPath = EmvMpmPackager.of("emvmpm_bc.xml").create();
+        EmvMpmDefinition defFile =
+                EmvMpmPackager.of(new File("emvmpm_bc.xml")).create();
 
         assertEquals(defPath.isTemplate("/26"), defFile.isTemplate("/26"));
         assertEquals(defPath.find("/26/00").isPresent(), defFile.find("/26/00").isPresent());
@@ -96,9 +83,7 @@ class EmvMpmPackagerTest {
     @Test
     @DisplayName("array-based definition finds nested path '/26/00'")
     void arrayDefinition_findsNestedPath() {
-        EmvMpmPackager packager = new EmvMpmPackager();
-        packager.setEmvMpmPackager(MINIMAL_FIELDS);
-        EmvMpmDefinition def = packager.create();
+        EmvMpmDefinition def = EmvMpmPackager.of(MINIMAL_FIELDS).create();
 
         assertTrue(def.find("/26/00").isPresent());
         assertEquals("/26/00", def.find("/26/00").get().getCanonicalId());
@@ -107,9 +92,7 @@ class EmvMpmPackagerTest {
     @Test
     @DisplayName("array-based definition: '/26' is template, '/26/00' is not template")
     void arrayDefinition_templateFlags() {
-        EmvMpmPackager packager = new EmvMpmPackager();
-        packager.setEmvMpmPackager(MINIMAL_FIELDS);
-        EmvMpmDefinition def = packager.create();
+        EmvMpmDefinition def = EmvMpmPackager.of(MINIMAL_FIELDS).create();
 
         assertTrue(def.isTemplate("/26"));
         assertFalse(def.isTemplate("/26/00"));
@@ -117,24 +100,19 @@ class EmvMpmPackagerTest {
     }
 
     @Test
-    @DisplayName(
-            "setEmvMpmPackager(InputStream) wraps malformed XML in unchecked EmvMpmException, not raw SAXException")
+    @DisplayName("of(InputStream) wraps malformed XML in unchecked EmvMpmException, not raw SAXException")
     void loadFromInputStream_malformedXml_throwsEmvMpmException() {
-        EmvMpmPackager packager = new EmvMpmPackager();
         ByteArrayInputStream malformed = new ByteArrayInputStream("<mpmpackager".getBytes(StandardCharsets.UTF_8));
 
-        EmvMpmException e =
-                assertThrows(EmvMpmException.class, () -> packager.setEmvMpmPackager(malformed));
+        EmvMpmException e = assertThrows(EmvMpmException.class, () -> EmvMpmPackager.of(malformed));
         assertInstanceOf(SAXException.class, e.getCause());
     }
 
     @Test
-    @DisplayName("setEmvMpmPackager(String path) wraps a missing file in unchecked EmvMpmException, not raw IOException")
+    @DisplayName("of(String path) wraps a missing file in unchecked EmvMpmException, not raw IOException")
     void loadFromPath_missingFile_throwsEmvMpmException() {
-        EmvMpmPackager packager = new EmvMpmPackager();
-
-        EmvMpmException e = assertThrows(
-                EmvMpmException.class, () -> packager.setEmvMpmPackager("no-such-file-emvmpm.xml"));
+        EmvMpmException e =
+                assertThrows(EmvMpmException.class, () -> EmvMpmPackager.of("no-such-file-emvmpm.xml"));
         assertInstanceOf(IOException.class, e.getCause());
     }
 }

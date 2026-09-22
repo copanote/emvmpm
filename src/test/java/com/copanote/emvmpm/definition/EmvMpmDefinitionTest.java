@@ -17,9 +17,7 @@ class EmvMpmDefinitionTest {
 
     @BeforeAll
     static void loadDefinition() throws Exception {
-        EmvMpmPackager packager = new EmvMpmPackager();
-        packager.setEmvMpmPackager("emvmpm_bc.xml");
-        definition = packager.create();
+        definition = EmvMpmPackager.of("emvmpm_bc.xml").create();
     }
 
     // ── find() ────────────────────────────────────────────────────────────

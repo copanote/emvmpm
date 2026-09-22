@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -20,25 +21,28 @@ import org.xml.sax.SAXException;
 
 /**
  * XML({@code <mpmpackager>} 루트, 중첩된 {@code <dataobject id maxlength type>} 엘리먼트)로부터
- * {@link EmvMpmDefinition}을 생성하는 packager.
+ * {@link EmvMpmDefinition}을 생성하는 불변(immutable) packager.
  *
  * <p>{@link String} 경로, {@link File}, {@link InputStream}, 또는 프로그래밍 방식의
- * {@link DataObjectDef}[]/{@link List}를 입력으로 받는다.
+ * {@link DataObjectDef}[]/{@link List} 중 하나의 소스를 골라 {@code of(...)} 정적 팩토리 메서드로
+ * 인스턴스를 생성한 뒤, {@link #create()}로 {@link EmvMpmDefinition}을 얻는다.
  *
  * <p>사용 예시:
  *
  * <pre>{@code
- * EmvMpmPackager packager = new EmvMpmPackager();
- * packager.setEmvMpmPackager("emvmpm_bc.xml");
+ * EmvMpmPackager packager = EmvMpmPackager.of("emvmpm_bc.xml");
  * EmvMpmDefinition definition = packager.create();
  * }</pre>
+ *
+ * <p><b>스레드 안전성:</b> 이 클래스는 불변이며 생성 후 상태가 바뀌지 않으므로 스레드 안전하다.
  */
-public class EmvMpmPackager {
+public final class EmvMpmPackager {
 
-    private List<DataObjectDef> FIELDS = new ArrayList<>();
+    private final List<DataObjectDef> fields;
 
-    /** 필드 정의가 비어 있는 packager를 생성한다. {@code setEmvMpmPackager(...)} 계열 메서드로 필드를 채운 뒤 {@link #create()}를 호출한다. */
-    public EmvMpmPackager() {}
+    private EmvMpmPackager(List<DataObjectDef> fields) {
+        this.fields = Collections.unmodifiableList(new ArrayList<>(fields));
+    }
 
     /**
      * 지금까지 설정된 필드 정의로 {@link EmvMpmDefinition}을 생성한다.
@@ -46,79 +50,84 @@ public class EmvMpmPackager {
      * @return 생성된 definition
      */
     public EmvMpmDefinition create() {
-
-        return EmvMpmDefinition.of(this.FIELDS);
+        return EmvMpmDefinition.of(this.fields);
     }
 
     /**
-     * 필드 정의 배열로 packager를 구성한다.
+     * 필드 정의 배열로 packager를 생성한다.
      *
      * @param fields 최상위 필드 정의 배열
+     * @return 생성된 packager
      */
-    public void setEmvMpmPackager(DataObjectDef[] fields) {
-        FIELDS = Arrays.asList(fields);
+    public static EmvMpmPackager of(DataObjectDef[] fields) {
+        return new EmvMpmPackager(Arrays.asList(fields));
     }
 
     /**
-     * 필드 정의 목록을 기존 필드에 추가한다.
+     * 필드 정의 목록으로 packager를 생성한다.
      *
-     * @param fields 추가할 최상위 필드 정의 목록
+     * @param fields 최상위 필드 정의 목록
+     * @return 생성된 packager
      */
-    public void setEmvMpmPackager(List<DataObjectDef> fields) {
-        FIELDS.addAll(fields);
+    public static EmvMpmPackager of(List<DataObjectDef> fields) {
+        return new EmvMpmPackager(fields);
     }
 
     /**
-     * emvmpm 정의 XML 파일 경로로 packager를 구성한다.
+     * emvmpm 정의 XML 파일 경로로 packager를 생성한다.
      *
      * @param path emvmpm 정의 XML 파일 경로
+     * @return 생성된 packager
      * @throws EmvMpmException XML 파서를 구성할 수 없거나, 파일을 읽을 수 없거나, XML 파싱에 실패한 경우
      */
-    public void setEmvMpmPackager(String path) {
+    public static EmvMpmPackager of(String path) {
         try {
-            configure(parse(path));
+            return new EmvMpmPackager(configure(parse(path)));
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new EmvMpmException("Failed to load EMV MPM definition XML from path \"" + path + "\"", e);
         }
     }
 
     /**
-     * emvmpm 정의 XML 파일로 packager를 구성한다.
+     * emvmpm 정의 XML 파일로 packager를 생성한다.
      *
      * @param file emvmpm 정의 XML 파일
+     * @return 생성된 packager
      * @throws EmvMpmException XML 파서를 구성할 수 없거나, 파일을 읽을 수 없거나, XML 파싱에 실패한 경우
      */
-    public void setEmvMpmPackager(File file) {
+    public static EmvMpmPackager of(File file) {
         try {
-            configure(parse(file));
+            return new EmvMpmPackager(configure(parse(file)));
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new EmvMpmException("Failed to load EMV MPM definition XML from file \"" + file + "\"", e);
         }
     }
 
     /**
-     * emvmpm 정의 XML을 담은 입력 스트림으로 packager를 구성한다.
+     * emvmpm 정의 XML을 담은 입력 스트림으로 packager를 생성한다.
      *
      * @param inputStream emvmpm 정의 XML 입력 스트림
+     * @return 생성된 packager
      * @throws EmvMpmException XML 파서를 구성할 수 없거나, 스트림을 읽을 수 없거나, XML 파싱에 실패한 경우
      */
-    public void setEmvMpmPackager(InputStream inputStream) {
+    public static EmvMpmPackager of(InputStream inputStream) {
         try {
-            configure(parse(inputStream));
+            return new EmvMpmPackager(configure(parse(inputStream)));
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new EmvMpmException("Failed to load EMV MPM definition XML from input stream", e);
         }
     }
 
-    private Document parse(String path) throws ParserConfigurationException, IOException, SAXException {
+    private static Document parse(String path) throws ParserConfigurationException, IOException, SAXException {
         return newSecureDocumentBuilder().parse(path);
     }
 
-    private Document parse(File file) throws ParserConfigurationException, IOException, SAXException {
+    private static Document parse(File file) throws ParserConfigurationException, IOException, SAXException {
         return newSecureDocumentBuilder().parse(file);
     }
 
-    private Document parse(InputStream inputStream) throws ParserConfigurationException, IOException, SAXException {
+    private static Document parse(InputStream inputStream)
+            throws ParserConfigurationException, IOException, SAXException {
         return newSecureDocumentBuilder().parse(inputStream);
     }
 
@@ -139,37 +148,52 @@ public class EmvMpmPackager {
         return factory.newDocumentBuilder();
     }
 
-    private void configure(Document doc) {
+    private static List<DataObjectDef> configure(Document doc) {
         NodeList rootNodeList = doc.getElementsByTagName("mpmpackager");
         if (rootNodeList.getLength() < 1) {
-            throw new IllegalArgumentException("There is no mpmpackager element");
+            throw new EmvMpmException("There is no <mpmpackager> root element");
         }
 
-        Node mpmpackager = rootNodeList.item(0);
-        FIELDS = configure(mpmpackager);
+        return configure(rootNodeList.item(0));
     }
 
-    private List<DataObjectDef> configure(Node mpmpackager) {
+    private static List<DataObjectDef> configure(Node mpmpackager) {
         List<DataObjectDef> result = new ArrayList<>();
-        NodeList dataObject = mpmpackager.getChildNodes();
+        NodeList children = mpmpackager.getChildNodes();
 
-        for (int i = 0; i < dataObject.getLength(); i++) {
-            Node element = dataObject.item(i);
+        for (int i = 0; i < children.getLength(); i++) {
+            Node element = children.item(i);
             if (element.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
             }
 
-            NamedNodeMap node = element.getAttributes();
+            NamedNodeMap attributes = element.getAttributes();
 
-            String id = node.getNamedItem("id").getNodeValue();
-            String name = node.getNamedItem("name").getNodeValue();
-            String maxlength = node.getNamedItem("maxlength").getNodeValue();
-            int ml = Integer.parseInt(maxlength);
-            String type = node.getNamedItem("type").getNodeValue();
+            String id = requireAttribute(element, attributes, "id");
+            String name = requireAttribute(element, attributes, "name");
+            String maxlength = requireAttribute(element, attributes, "maxlength");
+            String type = requireAttribute(element, attributes, "type");
 
-            if (DataObjectDef.Type.TEMPLATE.toString().equalsIgnoreCase(type)) {
-                List<DataObjectDef> children = configure(element);
-                result.add(new DataObjectDef(id, name, ml, DataObjectDef.Type.TEMPLATE, children));
+            int ml;
+            try {
+                ml = Integer.parseInt(maxlength);
+            } catch (NumberFormatException e) {
+                throw new EmvMpmException(
+                        "Invalid \"maxlength\" attribute value \"" + maxlength + "\" on <dataobject id=\"" + id
+                                + "\"> element",
+                        e);
+            }
+
+            boolean isTemplate = DataObjectDef.Type.TEMPLATE.toString().equalsIgnoreCase(type);
+            boolean isPrimitive = DataObjectDef.Type.PRIMITIVE.toString().equalsIgnoreCase(type);
+            if (!isTemplate && !isPrimitive) {
+                throw new EmvMpmException("Invalid \"type\" attribute value \"" + type + "\" on <dataobject id=\"" + id
+                        + "\"> element (expected \"primitive\" or \"template\")");
+            }
+
+            if (isTemplate) {
+                List<DataObjectDef> childDefs = configure(element);
+                result.add(new DataObjectDef(id, name, ml, DataObjectDef.Type.TEMPLATE, childDefs));
             } else {
                 result.add(new DataObjectDef(id, name, ml, DataObjectDef.Type.PRIMITIVE));
             }
@@ -177,8 +201,26 @@ public class EmvMpmPackager {
         return result;
     }
 
+    /**
+     * {@code <dataobject>} 엘리먼트에서 필수 속성 값을 읽는다.
+     *
+     * @param element 속성을 읽을 엘리먼트(오류 메시지 컨텍스트용)
+     * @param attributes {@code element}의 속성 맵
+     * @param attrName 읽을 속성 이름
+     * @return 속성 값
+     * @throws EmvMpmException 속성이 존재하지 않는 경우
+     */
+    private static String requireAttribute(Node element, NamedNodeMap attributes, String attrName) {
+        Node attr = attributes.getNamedItem(attrName);
+        if (attr == null) {
+            throw new EmvMpmException(
+                    "Missing required \"" + attrName + "\" attribute on <" + element.getNodeName() + "> element");
+        }
+        return attr.getNodeValue();
+    }
+
     @Override
     public String toString() {
-        return "EmvMpmPackager [FIELDS=" + FIELDS + "]";
+        return "EmvMpmPackager [fields=" + fields + "]";
     }
 }

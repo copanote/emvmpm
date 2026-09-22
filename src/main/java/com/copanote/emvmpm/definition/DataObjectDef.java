@@ -1,5 +1,6 @@
 package com.copanote.emvmpm.definition;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,7 +48,9 @@ public class DataObjectDef {
     }
 
     /**
-     * template 필드 정의를 생성하고, 자식들의 parent를 이 인스턴스로 설정한다.
+     * template 필드 정의를 생성하고, 자식들의 parent를 이 인스턴스로 설정한다. 전달받은 children 목록은
+     * 방어적으로 복사되므로, 호출자가 이후 원본 목록을 수정하더라도 이미 생성된 인스턴스는 영향을 받지
+     * 않는다.
      *
      * @param id 두 자리 태그 ID
      * @param description 필드 설명
@@ -60,10 +63,10 @@ public class DataObjectDef {
         this.description = description;
         this.maxlength = maxLength;
         this.type = type;
-        this.children = children;
+        this.children = new ArrayList<>(children);
 
         // Set Parent (같은 클래스 내부 필드 직접 대입 - 생성자에서만 발생하는 1회성 연결이며, 공개 setter는 없다)
-        for (DataObjectDef dod : children) {
+        for (DataObjectDef dod : this.children) {
             dod.parent = this;
         }
     }

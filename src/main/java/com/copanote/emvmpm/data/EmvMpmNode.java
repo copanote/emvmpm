@@ -21,6 +21,12 @@ import java.util.Optional;
  * root.markCrc();
  * String qrData = root.toQrCodeData();
  * }</pre>
+ *
+ * <p><b>스레드 안전성:</b> 이 클래스는 스레드 안전하지 않다. {@link #add(EmvMpmNode)}는 이 노드뿐 아니라
+ * 모든 조상 노드의 length/value까지 제자리에서(in-place) 재계산하므로, 여러 스레드가 같은 트리(또는 같은
+ * 트리에 속한 서로 다른 노드)에 동시에 접근하면 경쟁 상태(race condition)가 발생할 수 있다. 트리는 보통
+ * "QR 코드 하나에 트리 하나"처럼 한 스레드가 생성해서 다 쓸 때까지 그 스레드 안에서만 다루도록 만들어졌다.
+ * 여러 스레드에서 공유해야 한다면 호출자가 직접 동기화해야 한다.
  */
 public class EmvMpmNode implements Comparable<EmvMpmNode> {
     private static final char[] HEX_CHARS = "0123456789ABCDEF".toCharArray();

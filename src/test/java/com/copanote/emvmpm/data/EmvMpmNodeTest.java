@@ -24,9 +24,7 @@ class EmvMpmNodeTest {
 
     @BeforeAll
     static void setup() throws Exception {
-        EmvMpmPackager packager = new EmvMpmPackager();
-        packager.setEmvMpmPackager("emvmpm_bc.xml");
-        EmvMpmDefinition def = packager.create();
+        EmvMpmDefinition def = EmvMpmPackager.of("emvmpm_bc.xml").create();
         root = EmvMpmParser.parse(QR_STR, def);
     }
 

@@ -23,9 +23,7 @@ A schema tells the parser which tags contain nested TLV data (templates). Withou
 
 ```java
 // 1. Load schema
-EmvMpmPackager packager = new EmvMpmPackager();
-packager.setEmvMpmPackager("emvmpm_bc.xml");
-EmvMpmDefinition definition = packager.create();
+EmvMpmDefinition definition = EmvMpmPackager.of("emvmpm_bc.xml").create();
 
 // 2. Parse
 String qrString = "000201010211...6304ABCD";
@@ -132,20 +130,19 @@ root.add(node);
 
 ## 4. Loading a Schema (EmvMpmPackager)
 
-`EmvMpmPackager` supports four input sources:
+`EmvMpmPackager` is immutable. Pick one of four input sources with a static `of(...)` factory method,
+then call `create()`:
 
 ```java
-EmvMpmPackager packager = new EmvMpmPackager();
-
 // From file path (relative to Maven working directory, i.e. project root)
-packager.setEmvMpmPackager("emvmpm_bc.xml");
+EmvMpmDefinition definition = EmvMpmPackager.of("emvmpm_bc.xml").create();
 
 // From File object
-packager.setEmvMpmPackager(new File("/path/to/schema.xml"));
+EmvMpmDefinition definition = EmvMpmPackager.of(new File("/path/to/schema.xml")).create();
 
 // From InputStream (e.g. classpath resource)
 InputStream is = getClass().getResourceAsStream("/emvmpm_bc.xml");
-packager.setEmvMpmPackager(is);
+EmvMpmDefinition definition = EmvMpmPackager.of(is).create();
 
 // From DataObjectDef array (programmatic)
 DataObjectDef[] fields = {
@@ -157,9 +154,7 @@ DataObjectDef[] fields = {
         )),
     new DataObjectDef("63", "CRC", DataObjectDef.Type.PRIMITIVE),
 };
-packager.setEmvMpmPackager(fields);
-
-EmvMpmDefinition definition = packager.create();
+EmvMpmDefinition definition = EmvMpmPackager.of(fields).create();
 ```
 
 ### XML schema format

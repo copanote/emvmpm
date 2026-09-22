@@ -20,9 +20,7 @@ import java.util.Optional;
  * <p>사용 예시:
  *
  * <pre>{@code
- * EmvMpmPackager packager = new EmvMpmPackager();
- * packager.setEmvMpmPackager("emvmpm_bc.xml");
- * EmvMpmDefinition definition = packager.create();
+ * EmvMpmDefinition definition = EmvMpmPackager.of("emvmpm_bc.xml").create();
  *
  * EmvMpmNode root = EmvMpmParser.parse(rawQrData, definition);
  * String merchantName = root.find("/59").map(EmvMpmNode::getData).map(EmvMpmDataObject::getValue).orElse(null);
