@@ -69,10 +69,8 @@ public class EmvMpmParser {
             throw new IllegalArgumentException(
                     "Tag \"" + node.getCanonicalId() + "\" is not defined in the given definition");
         }
-        if (node.getChildren() != null) {
-            for (EmvMpmNode child : node.getChildren()) {
-                validateAgainstDefinition(child, def);
-            }
+        for (EmvMpmNode child : node.getChildren()) {
+            validateAgainstDefinition(child, def);
         }
     }
 

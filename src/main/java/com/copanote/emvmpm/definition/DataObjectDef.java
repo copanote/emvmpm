@@ -1,5 +1,6 @@
 package com.copanote.emvmpm.definition;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -22,12 +23,12 @@ public class DataObjectDef {
     /*
      * Fields
      */
-    private String id;
-    private String description;
-    private int maxlength;
-    private Type type;
+    private final String id;
+    private final String description;
+    private final int maxlength;
+    private final Type type;
     private DataObjectDef parent;
-    private List<DataObjectDef> children;
+    private final List<DataObjectDef> children;
 
     /*
      * Constructors
@@ -61,9 +62,9 @@ public class DataObjectDef {
         this.type = type;
         this.children = children;
 
-        // Set Parent
+        // Set Parent (같은 클래스 내부 필드 직접 대입 - 생성자에서만 발생하는 1회성 연결이며, 공개 setter는 없다)
         for (DataObjectDef dod : children) {
-            dod.setParent(this);
+            dod.parent = this;
         }
     }
 
@@ -92,10 +93,11 @@ public class DataObjectDef {
         this.description = description;
         this.maxlength = maxLength;
         this.type = type;
+        this.children = null;
     }
 
     /*
-     *  Getters and Setters
+     *  Getters
      */
     /**
      * 태그 ID를 반환한다.
@@ -104,15 +106,6 @@ public class DataObjectDef {
      */
     public String getId() {
         return id;
-    }
-
-    /**
-     * 태그 ID를 설정한다.
-     *
-     * @param id 두 자리 태그 ID
-     */
-    public void setId(String id) {
-        this.id = id;
     }
 
     /**
@@ -125,30 +118,12 @@ public class DataObjectDef {
     }
 
     /**
-     * 필드 설명을 설정한다.
-     *
-     * @param description 필드 설명
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
      * 값의 최대 길이를 반환한다.
      *
      * @return 최대 길이
      */
     public int getMaxlength() {
         return maxlength;
-    }
-
-    /**
-     * 값의 최대 길이를 설정한다.
-     *
-     * @param maxlength 최대 길이
-     */
-    public void setMaxlength(int maxlength) {
-        this.maxlength = maxlength;
     }
 
     /**
@@ -161,15 +136,6 @@ public class DataObjectDef {
     }
 
     /**
-     * 필드 타입을 설정한다.
-     *
-     * @param type {@link Type#PRIMITIVE} 또는 {@link Type#TEMPLATE}
-     */
-    public void setType(Type type) {
-        this.type = type;
-    }
-
-    /**
      * 부모 필드 정의를 반환한다.
      *
      * @return 부모 필드 정의, 최상위 필드인 경우 null
@@ -179,30 +145,13 @@ public class DataObjectDef {
     }
 
     /**
-     * 부모 필드 정의를 설정한다.
+     * 자식 필드 정의 목록을 반환한다. {@link #DataObjectDef(String, String, int, Type, List)}로 생성된
+     * 뒤에는 바꿀 수 없도록, 수정 불가능한 view로 감싸서 반환한다.
      *
-     * @param parent 부모 필드 정의
-     */
-    public void setParent(DataObjectDef parent) {
-        this.parent = parent;
-    }
-
-    /**
-     * 자식 필드 정의 목록을 반환한다.
-     *
-     * @return 자식 필드 정의 목록, primitive인 경우 null일 수 있음
+     * @return 자식 필드 정의 목록의 읽기 전용 view, primitive인 경우 빈 리스트
      */
     public List<DataObjectDef> getChildren() {
-        return children;
-    }
-
-    /**
-     * 자식 필드 정의 목록을 설정한다.
-     *
-     * @param children 자식 필드 정의 목록
-     */
-    public void setChildren(List<DataObjectDef> children) {
-        this.children = children;
+        return children == null ? Collections.emptyList() : Collections.unmodifiableList(children);
     }
 
     /*

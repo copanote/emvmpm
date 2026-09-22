@@ -72,10 +72,10 @@ class EmvMpmNodeFactoryTest {
     }
 
     @Test
-    @DisplayName("of(data) creates node with null parent and null children")
+    @DisplayName("of(data) creates node with null parent and empty children")
     void of_data_noParentNoChildren() {
         EmvMpmNode node = EmvMpmNodeFactory.of(EmvMpmDataObject.of("01", "12"));
         assertNull(node.getParent());
-        assertNull(node.getChildren());
+        assertTrue(node.getChildren().isEmpty());
     }
 }

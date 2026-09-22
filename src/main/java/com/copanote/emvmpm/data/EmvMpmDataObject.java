@@ -7,6 +7,9 @@ import com.copanote.emvmpm.definition.EmvMpmDefinition;
  *
  * <p>스펙에 따라 {@code id}와 {@code length}는 두 자리 숫자 문자열이다. 이 클래스는 트리 구조를 갖지 않는 순수한 데이터
  * 트리플만 표현하며, 부모/자식 관계는 {@link EmvMpmNode}가 담당한다.
+ *
+ * <p>세 필드 모두 불변(immutable)이다. 값을 바꾸려면 {@link #of(String, String, String)} 등의 팩토리
+ * 메서드로 새 인스턴스를 만들어야 한다.
  */
 public class EmvMpmDataObject implements Comparable<EmvMpmDataObject>, Cloneable {
 
@@ -24,10 +27,10 @@ public class EmvMpmDataObject implements Comparable<EmvMpmDataObject>, Cloneable
     public static final EmvMpmDataObject POINT_INITATION_METHOD_DYNAMIC = new EmvMpmDataObject("01", "02", "12");
 
     // An  ID shall be coded as a two-digit numeric value and shall have a value "00" to "99".
-    private String id;
+    private final String id;
     // Length shall be coded as a two-digit numeric value and shall have a value "01" to "99".
-    private String length;
-    private String value;
+    private final String length;
+    private final String value;
 
     /**
      * value의 실제 길이를 계산해서 length를 채운 {@link EmvMpmDataObject}를 생성한다.
@@ -96,15 +99,6 @@ public class EmvMpmDataObject implements Comparable<EmvMpmDataObject>, Cloneable
     }
 
     /**
-     * 태그 ID를 설정한다.
-     *
-     * @param id 두 자리 태그 ID
-     */
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    /**
      * value의 길이를 나타내는 두 자리 문자열을 반환한다.
      *
      * @return 두 자리 길이 문자열
@@ -114,30 +108,12 @@ public class EmvMpmDataObject implements Comparable<EmvMpmDataObject>, Cloneable
     }
 
     /**
-     * value의 길이를 나타내는 두 자리 문자열을 설정한다.
-     *
-     * @param length 두 자리 길이 문자열
-     */
-    public void setLength(String length) {
-        this.length = length;
-    }
-
-    /**
      * 원시 값을 반환한다.
      *
      * @return 원시 값 문자열
      */
     public String getValue() {
         return value;
-    }
-
-    /**
-     * 원시 값을 설정한다.
-     *
-     * @param value 원시 값 문자열
-     */
-    public void setValue(String value) {
-        this.value = value;
     }
 
     /**

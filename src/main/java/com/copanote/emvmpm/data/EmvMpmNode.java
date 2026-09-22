@@ -86,12 +86,13 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
     }
 
     /**
-     * 자식 노드 목록을 반환한다.
+     * 자식 노드 목록을 반환한다. {@link #add(EmvMpmNode)}를 거치지 않고 반환된 리스트를 직접 수정해서
+     * length/value 재계산 없이 트리가 깨지는 것을 막기 위해, 수정 불가능한 view로 감싸서 반환한다.
      *
-     * @return 자식 노드 목록, primitive인 경우 null일 수 있음
+     * @return 자식 노드 목록의 읽기 전용 view, primitive인 경우 빈 리스트
      */
     public List<EmvMpmNode> getChildren() {
-        return children;
+        return children == null ? Collections.emptyList() : Collections.unmodifiableList(children);
     }
 
     /**
@@ -157,14 +158,9 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
             // recalculate parent's length and value
             int len =
                     this.children.stream().map(i -> i.getData().getILVLength()).reduce(0, Integer::sum);
-            if (len > 99) {
-                throw new IllegalArgumentException("length shall have a value 0 to 99");
-            }
-            String twoDigitLength = String.format("%02d", len);
             String value =
                     this.children.stream().map(i -> i.getData().toEmvMpmData()).reduce("", String::concat);
-            getData().setLength(twoDigitLength);
-            getData().setValue(value);
+            setData(EmvMpmDataObject.of(getData().getId(), len, value));
         }
     }
 
@@ -283,7 +279,9 @@ public class EmvMpmNode implements Comparable<EmvMpmNode> {
     public void markCrc() {
         EmvMpmNode emptyCrc = EmvMpmNodeFactory.emptyCrc();
         String data = this.toQrCodeData() + emptyCrc.toQrCodeData();
-        emptyCrc.getData().setValue(EmvMpmCRC.calculateEmvMpmCrc(data, StandardCharsets.UTF_8));
+        String crc = EmvMpmCRC.calculateEmvMpmCrc(data, StandardCharsets.UTF_8);
+        emptyCrc.setData(EmvMpmDataObject.of(
+                emptyCrc.getData().getId(), emptyCrc.getData().getLength(), crc));
         this.add(emptyCrc);
     }
 

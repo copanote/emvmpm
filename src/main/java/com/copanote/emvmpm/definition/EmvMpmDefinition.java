@@ -76,8 +76,8 @@ public class EmvMpmDefinition {
      */
     public boolean isTemplate(String canonicalId) {
         Optional<DataObjectDef> dod = find(canonicalId);
-        return dod.filter(dataObjectDef -> DataObjectDef.Type.TEMPLATE == dataObjectDef.getType()).isPresent();
-
+        return dod.filter(dataObjectDef -> DataObjectDef.Type.TEMPLATE == dataObjectDef.getType())
+                .isPresent();
     }
 
     /**
