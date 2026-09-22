@@ -120,31 +120,36 @@ public class EmvMpmParser {
     private static List<EmvMpmDataObject> parseChild(String data) {
         List<EmvMpmDataObject> children = new ArrayList<>();
 
-        EmvMpmDataObject emdo;
-        int parsedLength = getTotalLength(children);
-
-        while (data.length() > parsedLength) {
-            emdo = parseOneNode(data.substring(parsedLength));
+        int cursor = 0;
+        while (cursor < data.length()) {
+            EmvMpmDataObject emdo = parseOneNode(data.substring(cursor));
             children.add(emdo);
-            parsedLength = getTotalLength(children);
+            cursor += emdo.getILVLength();
         }
 
         return children;
     }
 
-    private static int getTotalLength(List<EmvMpmDataObject> list) {
-        return list.stream().mapToInt(EmvMpmDataObject::getILVLength).sum();
-    }
-
     private static EmvMpmDataObject parseOneNode(String data) {
         int cursor = 0;
+
+        if (data.length() < LEN_ID + LEN_LENGTH) {
+            throw new IllegalArgumentException("Malformed EMV MPM data: expected at least " + (LEN_ID + LEN_LENGTH)
+                    + " characters for a tag's id/length but only " + data.length() + " remain: \"" + data + "\"");
+        }
 
         String id = data.substring(cursor, cursor + LEN_ID);
         cursor += LEN_ID;
 
         String sLentgh = data.substring(cursor, cursor + LEN_LENGTH);
         cursor += LEN_LENGTH;
-        int iLength = Integer.parseInt(sLentgh);
+        int iLength;
+        try {
+            iLength = Integer.parseInt(sLentgh);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(
+                    "Malformed EMV MPM data: tag \"" + id + "\" has a non-numeric length \"" + sLentgh + "\"", e);
+        }
 
         if (cursor + iLength > data.length()) {
             throw new IllegalArgumentException("Malformed EMV MPM data: tag \"" + id + "\" declares length " + iLength
