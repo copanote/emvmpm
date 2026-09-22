@@ -38,8 +38,6 @@ Only top-level tags are parsed. Template values remain as raw strings.
 EmvMpmNode root = EmvMpmParser.parse(qrString);
 ```
 
-> **Note:** `parse(qrString)` throws `RuntimeException` if the first tag id is `"10"` or greater (ambiguous without a schema).
-
 ---
 
 ## 2. Navigating the Parsed Tree
