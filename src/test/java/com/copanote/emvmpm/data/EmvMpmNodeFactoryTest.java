@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -38,6 +40,23 @@ class EmvMpmNodeFactoryTest {
 
         String expected = "2631" + "0014D4100000014010" + "0509100005832";
         assertEquals(expected, template.toQrCodeData());
+    }
+
+    @Test
+    @DisplayName("createTemplate() wires each child's parent so getCanonicalId() works")
+    void createTemplate_setsChildrenParent() {
+        EmvMpmNode child = EmvMpmNodeFactory.createPrimitive("00", "TEST");
+        EmvMpmNode template = EmvMpmNodeFactory.createTemplate("26", Arrays.asList(child));
+
+        EmvMpmNode root = EmvMpmNodeFactory.root();
+        root.add(template);
+
+        EmvMpmNode actualChild = template.getChildren().get(0);
+        System.out.println(actualChild.getCanonicalId());
+        Optional<EmvMpmNode> emvMpmNode = root.find("/26/00");
+        System.out.println(emvMpmNode.get().getCanonicalId());
+        assertSame(template, actualChild.getParent());
+        assertEquals("/26/00", actualChild.getCanonicalId());
     }
 
     @Test

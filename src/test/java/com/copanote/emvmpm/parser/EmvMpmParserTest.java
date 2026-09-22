@@ -2,6 +2,7 @@ package com.copanote.emvmpm.parser;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.copanote.emvmpm.EmvMpmException;
 import com.copanote.emvmpm.data.EmvMpmNode;
 import com.copanote.emvmpm.definition.DataObjectDef;
 import com.copanote.emvmpm.definition.EmvMpmDefinition;
@@ -68,10 +69,10 @@ class EmvMpmParserTest {
     }
 
     @Test
-    @DisplayName("parse(qr) without definition - throws RuntimeException when first tag > 10")
+    @DisplayName("parse(qr) without definition - throws EmvMpmException when first tag > 10")
     void parseWithoutDefinition_throwsForInvalidQr() {
         String invalidQr = "1030512345010211625603091000058320515MQ2020000047618060800000000070800000001";
-        assertThrows(RuntimeException.class, () -> EmvMpmParser.parse(invalidQr));
+        assertThrows(EmvMpmException.class, () -> EmvMpmParser.parse(invalidQr));
     }
 
     // ── parseAndDefinitionValidation() ───────────────────────────────────────
@@ -101,8 +102,8 @@ class EmvMpmParserTest {
         // tag "97" is not declared in minimalDef
         String dataWithUndefinedTag = "000201970241";
 
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
+        EmvMpmException ex = assertThrows(
+                EmvMpmException.class,
                 () -> EmvMpmParser.parseAndDefinitionValidation(dataWithUndefinedTag, minimalDef));
         assertTrue(ex.getMessage().contains("/97"), "message should mention the offending tag: " + ex.getMessage());
     }
@@ -115,7 +116,7 @@ class EmvMpmParserTest {
         // tag "00" declares length 05 but only 2 characters ("AB") remain
         String truncated = "0005AB";
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> EmvMpmParser.parse(truncated));
+        EmvMpmException ex = assertThrows(EmvMpmException.class, () -> EmvMpmParser.parse(truncated));
         assertTrue(ex.getMessage().contains("00"), "message should mention the offending tag: " + ex.getMessage());
     }
 }

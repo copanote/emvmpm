@@ -1,5 +1,6 @@
 package com.copanote.emvmpm.parser;
 
+import com.copanote.emvmpm.EmvMpmException;
 import com.copanote.emvmpm.data.EmvMpmDataObject;
 import com.copanote.emvmpm.data.EmvMpmNode;
 import com.copanote.emvmpm.data.EmvMpmNodeFactory;
@@ -56,7 +57,7 @@ public class EmvMpmParser {
      * @param data 원시 EMV MPM 데이터 문자열
      * @param def 파싱 및 검증에 사용할 definition
      * @return 검증을 통과한 파싱 결과 root 노드
-     * @throws IllegalArgumentException definition에 정의되지 않은 태그가 발견된 경우
+     * @throws EmvMpmException definition에 정의되지 않은 태그가 발견된 경우
      */
     public static EmvMpmNode parseAndDefinitionValidation(String data, EmvMpmDefinition def) {
         EmvMpmNode parsedNode = __parse(EmvMpmNodeFactory.root(), data, def);
@@ -66,8 +67,7 @@ public class EmvMpmParser {
 
     private static void validateAgainstDefinition(EmvMpmNode node, EmvMpmDefinition def) {
         if (!node.isRoot() && !def.find(node.getCanonicalId()).isPresent()) {
-            throw new IllegalArgumentException(
-                    "Tag \"" + node.getCanonicalId() + "\" is not defined in the given definition");
+            throw new EmvMpmException("Tag \"" + node.getCanonicalId() + "\" is not defined in the given definition");
         }
         for (EmvMpmNode child : node.getChildren()) {
             validateAgainstDefinition(child, def);
@@ -134,7 +134,7 @@ public class EmvMpmParser {
         int cursor = 0;
 
         if (data.length() < LEN_ID + LEN_LENGTH) {
-            throw new IllegalArgumentException("Malformed EMV MPM data: expected at least " + (LEN_ID + LEN_LENGTH)
+            throw new EmvMpmException("Malformed EMV MPM data: expected at least " + (LEN_ID + LEN_LENGTH)
                     + " characters for a tag's id/length but only " + data.length() + " remain: \"" + data + "\"");
         }
 
@@ -147,12 +147,12 @@ public class EmvMpmParser {
         try {
             iLength = Integer.parseInt(sLentgh);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(
+            throw new EmvMpmException(
                     "Malformed EMV MPM data: tag \"" + id + "\" has a non-numeric length \"" + sLentgh + "\"", e);
         }
 
         if (cursor + iLength > data.length()) {
-            throw new IllegalArgumentException("Malformed EMV MPM data: tag \"" + id + "\" declares length " + iLength
+            throw new EmvMpmException("Malformed EMV MPM data: tag \"" + id + "\" declares length " + iLength
                     + " but only " + (data.length() - cursor) + " characters remain");
         }
 

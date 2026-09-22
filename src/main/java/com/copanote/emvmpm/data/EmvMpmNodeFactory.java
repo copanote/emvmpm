@@ -107,7 +107,8 @@ public class EmvMpmNodeFactory {
     }
 
     /**
-     * 주어진 자식들로부터 length/value를 계산해서 template 노드를 생성한다.
+     * 주어진 자식들로부터 length/value를 계산해서 template 노드를 생성한다. 생성된 template을 각 자식의
+     * parent로 설정하므로, 결과 노드에서 바로 {@link EmvMpmNode#getCanonicalId()}를 사용할 수 있다.
      *
      * @param id 두 자리 태그 ID
      * @param children 이 template의 자식이 될 노드 목록
@@ -120,6 +121,8 @@ public class EmvMpmNodeFactory {
 
         EmvMpmDataObject dataObject = EmvMpmDataObject.of(id, len, value);
 
-        return EmvMpmNodeFactory.of(dataObject, children);
+        EmvMpmNode template = EmvMpmNodeFactory.of(dataObject, children);
+        children.forEach(child -> child.setParent(template));
+        return template;
     }
 }
